@@ -1,0 +1,18 @@
+# Lazy.nvim lock file (auto-generated, changes frequently)
+lazy-lock.json
+
+# LazyVim extras manifest (auto-generated)
+lazyvim.json
+
+# Spell files (binary, user-specific)
+spell/
+
+# Plugin data/state (managed by lazy.nvim)
+.lazy/
+
+# Claude Code project settings (user-specific)
+.claude/
+
+# OS artifacts
+Thumbs.db
+desktop.ini
