@@ -61,7 +61,7 @@ return {
       },
     },
     window = {
-      width = 28,
+      width = 26,
       position = "left",
       popup_border_style = "single",
       mappings = {
@@ -104,12 +104,16 @@ return {
     },
     default_component_configs = {
       indent = {
+        indent_size = 1,          -- VS Code-like: 1 char por nivel (denso, profesional)
+        padding = 0,              -- sin padding izquierdo extra
+        with_markers = true,      -- guías verticales de indentación
+        indent_marker = "│",      -- guía continua — mismo estilo que mini.indentscope
+        last_indent_marker = "╰", -- último hijo del bloque (más premium que └)
+        highlight = "NeoTreeIndentMarker",
         with_expanders = true,
         expander_collapsed = "",
         expander_expanded = "",
         expander_highlight = "NeoTreeExpander",
-        indent_size = 2,
-        padding = 1,
       },
       name = {
         trailing_slash = false,

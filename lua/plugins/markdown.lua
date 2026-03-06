@@ -4,13 +4,28 @@ return {
 		"MeanderingProgrammer/render-markdown.nvim",
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-mini/mini.nvim" },
 		ft = { "markdown", "Avante" },
+		-- config reemplaza el auto-setup de lazy: permite monkey-patch ANTES de setup()
+		config = function(_, opts)
+			-- FIX permanente para "Index out of bounds" en nvim_buf_get_text:
+			-- render-markdown agenda callbacks via vim.schedule; para cuando ejecutan,
+			-- el treesitter node puede tener posiciones fuera del buffer actual.
+			-- Wrapping get_node_text con pcall captura el error en C antes de propagarse.
+			-- Retornar "" es seguro: render-markdown omite el nodo y sigue renderizando.
+			local orig_gnt = vim.treesitter.get_node_text
+			vim.treesitter.get_node_text = function(node, source, options)
+				local ok, result = pcall(orig_gnt, node, source, options)
+				return ok and result or ""
+			end
+			require("render-markdown").setup(opts)
+		end,
 		opts = {
 			-- Desactivado por defecto: el archivo abre en Raw
 			-- <leader>mr cicla: Raw -> Hybrid -> Rendered
 			enabled = false,
 			-- Debounce: espera Nms tras cambios antes de re-renderizar
-			-- Previene la race condition "Index out of bounds" en treesitter
-			debounce = 100,
+			-- 200ms previene la race condition "Index out of bounds" en treesitter
+			-- (nvim_buf_get_text recibe nodo stale si el buffer cambia muy rapido)
+			debounce = 200,
 			-- Solo renderizar en Normal y Command — excluye Insert donde ocurre la race condition
 			render_modes = { "n", "c" },
 			-- Ocultar errores de treesitter en notificaciones (ya logueados en :messages)

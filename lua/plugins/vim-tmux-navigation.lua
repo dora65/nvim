@@ -1,8 +1,9 @@
--- This file contains the configuration for the nvim-tmux-navigation plugin in Neovim.
+-- nvim-tmux-navigation: DESACTIVADO
+-- Razón: entorno Windows + WezTerm no usa tmux.
+-- tmux es un multiplexor de terminales Linux/macOS; WezTerm tiene su propio sistema de panes/tabs.
+-- La navegación <C-h/j/k/l> entre splits está configurada directamente en keymaps.lua.
+-- Si en algún momento se adopta WSL + tmux, re-activar aquí.
 
 return {
-  -- Plugin: nvim-tmux-navigation
-  -- URL: https://github.com/alexghergh/nvim-tmux-navigation
-  -- Description: A Neovim plugin that allows seamless navigation between Neovim and tmux panes.
-  "alexghergh/nvim-tmux-navigation",
+  { "alexghergh/nvim-tmux-navigation", enabled = false },
 }

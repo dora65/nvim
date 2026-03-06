@@ -2,7 +2,7 @@
 -- https://lazyvim.github.io/configuration/general
 
 -- Timing
-vim.opt.timeoutlen = 500   -- which-key aparece más rápido (LazyVim default: 300)
+vim.opt.timeoutlen = 300   -- which-key timeout: 300ms = LazyVim default, balance entre velocidad y accidentales
 vim.opt.ttimeoutlen = 0    -- sin delay al salir de insert mode con Escape
 
 -- Scroll con contexto visual
@@ -56,12 +56,16 @@ vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
 vim.opt.fillchars:append({ fold = " ", foldopen = "▾", foldclose = "▸", foldsep = " " })
+-- foldtext: nvim 0.10+ — muestra primera línea real + conteo de líneas colapsadas
+-- Sin esto el fold muestra "N lines: ..." genérico y pierde el syntax highlight
+vim.opt.foldtext = ""  -- cadena vacía = nvim usa el foldtext virtual nativo (0.10+)
 
 -- Smooth scroll: delegado a neoscroll.nvim (easing quadratic configurable)
 -- vim.opt.smoothscroll = true  -- desactivado: neoscroll ya lo maneja, ambos juntos = doble easing
 
--- Sign column fija: evita saltos al mostrar diagnostics/git
-vim.opt.signcolumn = "yes"
+-- Sign column fija 1-char: evita saltos al mostrar diagnostics/git
+-- "yes:1" = siempre visible, exactamente 1 col (no se expande a 2 con múltiples signos)
+vim.opt.signcolumn = "yes:1"
 
 -- Preview de :s en split (ves cambios en tiempo real)
 vim.opt.inccommand = "split"
@@ -72,6 +76,7 @@ vim.opt.numberwidth = 3
 -- Win separator más limpio (minimalista)
 vim.opt.winblend = 0
 vim.opt.pumblend = 0
+vim.o.winborder = "rounded"  -- Neovim 0.11+: border redondeado en TODOS los floats nativos (K, gl, input)
 
 -- ─── Oro puro ────────────────────────────────────────────────────────────────
 -- Popup de completion: máximo 10 items visibles (más limpio que infinito)

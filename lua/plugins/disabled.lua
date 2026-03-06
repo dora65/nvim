@@ -6,4 +6,5 @@ return {
   { "olimorris/codecompanion.nvim", enabled = false },
   { "nvim-tree/nvim-tree.lua", enabled = false }, -- Se usa neo-tree
   { "stevearc/oil.nvim", enabled = false },       -- Reemplazado por mini.files
+  { "kndndrj/nvim-dbee", enabled = false },       -- Eliminado: dbee descartado
 }

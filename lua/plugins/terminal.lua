@@ -35,7 +35,8 @@ return {
         height = function()
           return math.floor(vim.o.lines * 0.85)
         end,
-        winblend = 0,
+        -- winblend omitido: mini.animate lo gestiona (open: 80→0, close: 0→80)
+        -- Con winblend=0 explícito aquí se sobreescribe el estado inicial de la animación
         highlights = {
           border = "FloatBorder",
           background = "NormalFloat",
@@ -44,21 +45,9 @@ return {
     },
     config = function(_, opts)
       require("toggleterm").setup(opts)
-      -- Auto-ocultar terminal flotante al entrar a CUALQUIER otra ventana
-      -- WinEnter es más fiable que WinLeave: el nuevo contexto ya está estabilizado
-      vim.api.nvim_create_autocmd("WinEnter", {
-        group = vim.api.nvim_create_augroup("toggleterm_autohide", { clear = true }),
-        callback = function()
-          if vim.bo.filetype == "toggleterm" then return end  -- entramos al propio float, no hacer nada
-          local ok, tt = pcall(require, "toggleterm.terminal")
-          if not ok then return end
-          for _, term in pairs(tt.get_all()) do
-            if term.direction == "float" then
-              term:close()
-            end
-          end
-        end,
-      })
+      -- Auto-close eliminado: el WinEnter era demasiado agresivo y cerraba el float
+      -- al abrir cualquier picker/mini.files/Claude, creando cascadas inesperadas.
+      -- El toggle manual con <leader>tf/th/tv es suficiente. Esc en modo normal cierra.
     end
   }
 }

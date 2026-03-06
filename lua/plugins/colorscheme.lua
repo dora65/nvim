@@ -3,16 +3,16 @@
 local K = {
 	none = "NONE",
 	-- Fondos (bg_dark = "none" = transparente en la variante blur)
-	bg = "#161617", -- fondo terminal (Windows Terminal JSON)
-	gray1 = "#191E28",
-	gray2 = "#232A40",
-	gray3 = "#313342",
+	bg = "#1e1f1c", -- fondo terminal — warm olive-dark (ref: Monokai ST3)
+	gray1 = "#252932",
+	gray2 = "#2A3140",
+	gray3 = "#3A4257",
 	gray4 = "#27345C",
 	gray5 = "#5C6170",
-	surface0 = "#1C212C",
-	surface1 = "#232A36",
-	surface2 = "#2A3142",
-	lsp_bg = "#2D3C4A",
+	surface0 = "#282F3E",
+	surface1 = "#2E3748",
+	surface2 = "#38435A",
+	lsp_bg = "#2A3C4C",
 	-- Texto
 	fg = "#F3F6F9",
 	fg_muted = "#5C6170",
@@ -22,23 +22,23 @@ local K = {
 	-- Colores semánticos
 	red = "#CB7C94",
 	green = "#B7CC85",
-	yellow = "#FFE066",
+	yellow = "#C8976B", -- muted amber — warnings/semantic only (was #FFE066)
 	orange = "#DEBA87",
 	blue = "#7FB4CA",
-	cyan = "#7AA89F",
-	purple = "#A3B5D6",
+	cyan = "#66d9ef",  -- ST3 bright cyan — tipos builtin, interfaces
+	purple = "#ae81ff", -- ST3 violet — números, constantes, enum members
 	magenta = "#FF8DD7",
 	-- Sintaxis
 	func_ = "#B99BF2",
 	keyword_ = "#C99AD6",
-	str_ = "#DFBD76",
+	str_ = "#9DC87F",  -- spring green — strings (was #DFBD76 amber)
 	comment_ = "#8394A3",
 	type_ = "#8FB8DD",
 	variable_ = "#C4746E",
 	prop_ = "#A1B5C7",
 	var_param = "#C7A8DF",
 	var_mem = "#B8AFC6",
-	type_i = "#98CCE6", -- type_interface
+	type_i = "#66d9ef", -- interface: ST3 cyan — más distintivo que el blue
 	type_s = "#92B3CC", -- type_super
 	-- UI
 	selection = "#1E2A3A",  -- waveBlue-inspired: sutil tint azul, no navy saturado
@@ -158,6 +158,21 @@ return {
 				["@type.c_sharp"] = { fg = K.type_, bold = true },
 				["@keyword.modifier.c_sharp"] = { fg = K.keyword_, italic = true },
 
+				-- ── Core syntax (Treesitter overrides) ─────────────────────────────────
+				-- Strings→verde, números/constantes→ST3 violet, builtins→ST3 cyan
+				["@string"] = { fg = K.str_ },
+				["@string.quoted.double"] = { fg = K.str_ },
+				["@string.quoted.single"] = { fg = K.str_ },
+				["@string.special.url"] = { fg = K.blue, underline = true },
+				["@number"] = { fg = K.purple },
+				["@number.float"] = { fg = K.purple },
+				["@boolean"] = { fg = K.purple },
+				["@constant"] = { fg = K.purple },
+				["@constant.builtin"] = { fg = K.cyan, italic = true },
+				["@type.builtin"] = { fg = K.cyan },
+				["@function.builtin"] = { fg = K.cyan },
+				["@variable.builtin"] = { fg = K.cyan, italic = true },
+
 				-- ── Neo-tree ─────────────────────────────────────────────────────
 				NeoTreeNormal = { bg = K.none, fg = K.fg },
 				NeoTreeNormalNC = { bg = K.none, fg = K.fg_dim },
@@ -258,13 +273,13 @@ return {
 				KulalaNormal = { bg = K.none, fg = K.fg },
 				KulalaBorder = { fg = K.accent, bg = K.none },
 				KulalaMethodGet = { fg = K.green, bold = true },
-				KulalaMethodPost = { fg = K.yellow, bold = true },
+				KulalaMethodPost = { fg = K.blue, bold = true },    -- POST=blue: crea recursos
 				KulalaMethodPut = { fg = K.orange, bold = true },
 				KulalaMethodDelete = { fg = K.red, bold = true },
 				KulalaMethodPatch = { fg = K.cyan, bold = true },
 				KulalaMethodHead = { fg = K.green, bold = true },
 				KulalaStatusCodeSuccess = { fg = K.green, bold = true },
-				KulalaStatusCodeRedirect = { fg = K.yellow, bold = true },
+				KulalaStatusCodeRedirect = { fg = K.orange, bold = true },
 				KulalaStatusCodeClientError = { fg = K.orange, bold = true },
 				KulalaStatusCodeServerError = { fg = K.red, bold = true },
 				KulalaURL = { fg = K.blue, underline = true },
@@ -394,6 +409,47 @@ return {
 		},
 	},
 
+	-- ─── Kanagawa Paper — Kanagawa remixed con colores más suaves ──────────────
+	-- Variantes: kanagawa-paper-ink (dark) · kanagawa-paper-canvas (light)
+	-- Lualine: integración nativa con theme = 'kanagawa-paper'
+	{
+		"thesimonho/kanagawa-paper.nvim",
+		name = "kanagawa-paper",
+		priority = 1000,
+		lazy = true, -- carga solo con :colorscheme kanagawa-paper-ink
+		opts = {
+			undercurl = true,
+			transparent = true,    -- Normal/NormalFloat = NONE (stack transparente)
+			gutter = false,        -- signcolumn transparente
+			dim_inactive = true,   -- ventanas inactivas dimmed
+			terminal_colors = true,
+			cache = true,          -- compilar y cachear para startup rápido
+			styles = {
+				comment   = { italic = true },
+				functions = { bold = true },
+				keyword   = { italic = true },
+				statement = { italic = false, bold = false },
+				type      = { italic = false },
+			},
+			auto_plugins = true,   -- detecta plugins activos (treesitter, blink, gitsigns…)
+			-- Refinamientos ST3 + reducción de amarillo (misma filosofía que K palette)
+			overrides = function(_colors)
+				return {
+					-- Números/constantes → ST3 violet #ae81ff (más distintivo que defaults)
+					["@number"]           = { fg = "#ae81ff" },
+					["@number.float"]     = { fg = "#ae81ff" },
+					["@boolean"]          = { fg = "#ae81ff", bold = true },
+					["@constant"]         = { fg = "#ae81ff" },
+					["@constant.builtin"] = { fg = "#66d9ef", italic = true },
+					-- Tipos/builtins → ST3 bright cyan #66d9ef
+					["@type.builtin"]     = { fg = "#66d9ef" },
+					["@function.builtin"] = { fg = "#66d9ef" },
+					["@variable.builtin"] = { fg = "#66d9ef", italic = true },
+				}
+			end,
+		},
+	},
+
 	-- ─── Catppuccin Mocha — tema premium unificado con Windows Terminal ─────────
 	{
 		"catppuccin/nvim",
@@ -437,7 +493,7 @@ return {
 						Normal = { bg = t },
 						NormalNC = { bg = colors.mantle, fg = colors.overlay0 },
 						NormalFloat = { bg = t, fg = colors.text },
-						FloatBorder = { fg = colors.surface1, bg = t },
+						FloatBorder = { fg = colors.surface2, bg = t },
 						FloatTitle = { fg = colors.mauve, bg = t, bold = true },
 
 						-- ── Cursor line: sutil sobre transparencia ──────────────────────
@@ -511,9 +567,9 @@ return {
 						IndentBlanklineChar = { fg = colors.surface0 },
 
 						-- ── Visual selection: dark mauve blend — consistente con WezTerm selection_bg ──
-						-- #413956 = 20% mauve + 80% base — visible, no agresivo, tinte temático
-						Visual = { bg = "#413956" },
-						VisualNOS = { bg = "#413956" },
+						-- #394361 = blend(blue #89b4fa, base #1e1e2e, 25%) — H=222° azul puro, no rosado, 6.4:1 WCAG AA
+						Visual = { bg = "#394361" },
+						VisualNOS = { bg = "#394361" },
 
 						-- ── Search highlights ───────────────────────────────────────────
 						Search = { bg = colors.surface1, fg = colors.text },
@@ -558,6 +614,8 @@ return {
 						DiagnosticUnderlineWarn = { sp = colors.yellow, undercurl = true },
 						DiagnosticUnderlineInfo = { sp = colors.sky, undercurl = true },
 						DiagnosticUnderlineHint = { sp = colors.teal, undercurl = true },
+						-- Código muerto/unused: dim+italic como comentario — IntelliJ/VS Code/Rider standard
+						DiagnosticUnnecessary = { fg = colors.overlay0, italic = true },
 
 						-- ── Diff ────────────────────────────────────────────────────────
 						DiffAdd = { bg = "#1a3a2a" },
@@ -577,6 +635,9 @@ return {
 						-- ── LSP Inlay Hints: overlay1 italic — secundarios, badge sobre mantle ──
 						-- overlay1 (#7f849c) ≈ 5:1 contraste: más legible que overlay0 sin competir
 						LspInlayHint = { fg = colors.overlay1, bg = colors.mantle, italic = true },
+						-- Code lens (N references, N implementations): UI secundaria semántica
+						LspCodeLensText      = { fg = colors.overlay1, italic = true },
+						LspCodeLensSeparator = { fg = colors.surface2 },
 
 						-- ── C# Semantic Tokens & Treesitter (Diferenciación Visual Élite basada en AST) ────────────
 						-- Estas reglas dominan visualmente el código basándose en el motor sintáctico y semántico,
@@ -764,6 +825,9 @@ return {
 						["@string.escape"]         = { fg = colors.pink },            -- \n \t \\ escapes resaltados
 						["@string.regexp"]         = { fg = colors.peach },           -- regex patterns
 						["@string.special"]        = { fg = colors.pink },            -- format strings %s, {}
+						-- URLs en código: blue+underline — mismo estándar que VS Code/Sublime/JetBrains
+						["@string.special.url"]         = { fg = colors.blue, underline = true },
+						["@string.special.url.comment"] = { fg = colors.sky, underline = true },
 
 						-- Operadores y puntuación (Kanagawa: UI recede, código emerge)
 						["@operator"]              = { fg = colors.teal },            -- + - * / = < >
@@ -778,6 +842,9 @@ return {
 						["@comment.warning"]       = { fg = colors.peach, bold = true },
 						["@comment.error"]         = { fg = colors.red, bold = true },
 						["@comment.documentation"] = { fg = colors.sky, italic = true }, -- JSDoc, docstrings
+
+						-- Markup: inline code con fondo sutil — JetBrains pattern (legibilidad en docs)
+						["@markup.raw.inline"]     = { fg = colors.teal, bg = colors.surface0 },
 
 						-- Tags HTML/JSX/TSX/Svelte
 						["@tag"]                   = { fg = colors.mauve },
@@ -843,6 +910,17 @@ return {
 						ErrorMsg   = { fg = colors.red, bold = true },
 						WarningMsg = { fg = colors.yellow },
 						Question   = { fg = colors.green, bold = true },
+						-- ── Rainbow Delimiters: color lanes del sistema semántico ────────────────────
+						-- Pre-definidos aquí para estar listos cuando rainbow-delimiters.nvim esté activo.
+						-- Sin plugin activo: grupos ignorados silenciosamente (zero-risk).
+						RainbowDelimiterMauve    = { fg = colors.mauve },    -- nivel 1: acento/identidad
+						RainbowDelimiterBlue     = { fg = colors.blue },     -- nivel 2: funciones
+						RainbowDelimiterTeal     = { fg = colors.teal },     -- nivel 3: propiedades/ops
+						RainbowDelimiterYellow   = { fg = colors.yellow },   -- nivel 4: tipos/clases
+						RainbowDelimiterPeach    = { fg = colors.peach },    -- nivel 5: números/literales
+						RainbowDelimiterLavender = { fg = colors.lavender }, -- nivel 6: constantes/enum
+						RainbowDelimiterPink     = { fg = colors.pink },     -- nivel 7: escapes/especiales
+
 
 					}
 				end,

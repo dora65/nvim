@@ -1,8 +1,7 @@
 return {
   "epwalsh/obsidian.nvim", -- Repositorio correcto
   version = "*",
-  lazy = false, -- Evitar lazy loading para inicialización correcta
-  dependencies = {
+dependencies = {
     "nvim-lua/plenary.nvim",
   },
   keys = {

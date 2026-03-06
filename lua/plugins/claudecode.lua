@@ -16,8 +16,29 @@ return {
       "ClaudeCodeSelectModel",
     },
     keys = {
-      -- Ctrl+q: toggle mostrar/ocultar (normal + terminal mode)
-      { "<C-q>", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude Code", mode = { "n", "t" } },
+      -- Ctrl+q: OCULTAR/MOSTRAR — nvim_win_hide() garantiza que Claude NUNCA se termina
+      -- • Si el float está visible → lo oculta (proceso Claude sigue corriendo en bg)
+      -- • Si no está visible       → lo muestra o lo inicia
+      -- • Modo solo "n": el float maneja <C-q> en terminal mode con self:hide() (ver abajo)
+      --   Así evitamos que <C-q> en OTRA terminal (modo t) dispare ClaudeCode por error.
+      {
+        "<C-q>",
+        function()
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            local cfg = vim.api.nvim_win_get_config(win)
+            if vim.api.nvim_buf_get_name(buf):find("claude", 1, true)
+              and vim.bo[buf].buftype == "terminal"
+              and cfg.relative ~= "" then
+              vim.api.nvim_win_hide(win)  -- oculta la ventana, NO mata el proceso
+              return
+            end
+          end
+          vim.cmd("ClaudeCode")  -- no está visible → mostrar o iniciar sesión
+        end,
+        desc = "Claude: hide/show (never terminate)",
+        mode = "n",
+      },
 
       -- Acciones bajo <leader>a
       { "<leader>aa", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude Code" },
@@ -26,6 +47,8 @@ return {
       { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select model" },
       { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add buffer to context" },
       { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send selection" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude Code" },
+      { "<leader>at", "<cmd>ClaudeCodeTreeAdd<cr>", desc = "Add tree file to context" },
       { "<leader>ay", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff (yes)" },
       { "<leader>an", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff (no)" },
     },
@@ -47,7 +70,8 @@ return {
           title = " 󰚩 Claude Code ",
           title_pos = "center",
           wo = {
-            winblend = 0,
+            -- winblend omitido: mini.animate lo gestiona (open: 80→0, close: 0→80)
+            -- Si se fuerza 0 aquí, sobreescribe el valor inicial que mini.animate necesita
             winhighlight = "Normal:NormalFloat,FloatBorder:ClaudeCodeBorder,FloatTitle:ClaudeCodeTitle",
           },
           keys = {
@@ -61,7 +85,9 @@ return {
               desc = "Hide Claude",
             },
           },
-          -- Al perder foco → se oculta automáticamente
+          -- on_blur: oculta Claude al perder el foco (click o split a otro panel).
+          -- self:hide() = nvim_win_hide → proceso Claude NUNCA se termina.
+          -- Re-mostrar con <C-q> o <leader>aa desde cualquier ventana.
           on_blur = function(self)
             self:hide()
           end,
@@ -80,32 +106,26 @@ return {
 
     config = function(_, opts)
       require("claudecode").setup(opts)
-
-      -- Auto-ocultar el float de Claude Code al perder el foco
-      -- nvim_win_hide: oculta la ventana SIN matar el proceso (equivalente a <C-q>)
-      -- on_blur de snacks no siempre dispara con mouse → esta es la solución robusta
-      vim.api.nvim_create_autocmd("WinEnter", {
-        group = vim.api.nvim_create_augroup("claudecode_autohide", { clear = true }),
-        callback = function()
-          local cur_buf = vim.api.nvim_get_current_buf()
-          -- Si entramos al propio terminal de claude, no ocultarlo
-          if vim.api.nvim_buf_get_name(cur_buf):find("claude", 1, true) then return end
-
-          local cur_win = vim.api.nvim_get_current_win()
-          for _, win in ipairs(vim.api.nvim_list_wins()) do
-            if win ~= cur_win then
-              local buf = vim.api.nvim_win_get_buf(win)
-              local cfg = vim.api.nvim_win_get_config(win)
-              -- Solo cerrar: floats de terminal con "claude" en el nombre del buffer
-              if vim.api.nvim_buf_get_name(buf):find("claude", 1, true)
-                and vim.bo[buf].buftype == "terminal"
-                and cfg.relative ~= "" then
-                vim.api.nvim_win_hide(win)
-              end
-            end
-          end
-        end,
-      })
     end,
+  },
+  -- which-key: registrar grupo <leader>a para Claude Code (discoverability)
+  {
+    "folke/which-key.nvim",
+    optional = true,
+    opts = {
+      spec = {
+        { "<leader>a",  group = "Claude AI",           icon = { icon = "󰚩", color = "yellow" } },
+        { "<leader>aa", desc = "Toggle panel" },
+        { "<leader>ar", desc = "Resume session" },
+        { "<leader>ac", desc = "Continue session" },
+        { "<leader>am", desc = "Select model" },
+        { "<leader>ab", desc = "Add buffer to context" },
+        { "<leader>as", desc = "Send selection",       mode = "v" },
+        { "<leader>af", desc = "Focus panel" },
+        { "<leader>at", desc = "Add tree file to context" },
+        { "<leader>ay", desc = "Accept diff (yes)" },
+        { "<leader>an", desc = "Deny diff (no)" },
+      },
+    },
   },
 }
