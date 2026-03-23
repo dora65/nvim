@@ -123,7 +123,7 @@ end
 require("lazy").setup({
   spec = {
     -- Add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    { "LazyVim/LazyVim", import = "lazyvim.plugins", opts = { colorscheme = "sublime" } },
     
     -- Editor plugins - highly rated for Windows
     { import = "lazyvim.plugins.extras.editor.harpoon2" },
@@ -158,7 +158,7 @@ require("lazy").setup({
     lazy = true,
     version = false,
   },
-  install = { colorscheme = { "catppuccin", "gentleman-kanagawa-blur", "habamax" } },
+  install = { colorscheme = { "catppuccin", "habamax" } },
   ui = { border = "rounded" }, -- Bordes redondeados premium para lazy.nvim UI
   checker = { enabled = true }, -- Verificar actualizaciones automáticamente
   performance = {

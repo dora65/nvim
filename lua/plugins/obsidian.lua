@@ -5,15 +5,15 @@ dependencies = {
     "nvim-lua/plenary.nvim",
   },
   keys = {
-    { "<leader>oc", "<cmd>ObsidianCheck<CR>", desc = "Check Checkbox" },
-    { "<leader>ot", "<cmd>ObsidianTemplate<CR>", desc = "Insert Template" },
-    { "<leader>oo", "<cmd>ObsidianOpen<CR>", desc = "Open in App" },
-    { "<leader>ob", "<cmd>ObsidianBacklinks<CR>", desc = "Show Backlinks" },
-    { "<leader>ol", "<cmd>ObsidianLinks<CR>", desc = "Show Links" },
-    { "<leader>on", "<cmd>ObsidianNew<CR>", desc = "Create New Note" },
-    { "<leader>os", "<cmd>ObsidianSearch<CR>", desc = "Search" },
-    { "<leader>oq", "<cmd>ObsidianQuickSwitch<CR>", desc = "Quick Switch" },
-    { "<leader>od", "<cmd>ObsidianToday<CR>", desc = "Open Today Note" },
+    { "<leader>Nc", "<cmd>ObsidianCheck<CR>", desc = "Check Checkbox" },
+    { "<leader>Nt", "<cmd>ObsidianTemplate<CR>", desc = "Insert Template" },
+    { "<leader>No", "<cmd>ObsidianOpen<CR>", desc = "Open in App" },
+    { "<leader>Nb", "<cmd>ObsidianBacklinks<CR>", desc = "Show Backlinks" },
+    { "<leader>Nl", "<cmd>ObsidianLinks<CR>", desc = "Show Links" },
+    { "<leader>Nn", "<cmd>ObsidianNew<CR>", desc = "Create New Note" },
+    { "<leader>Ns", "<cmd>ObsidianSearch<CR>", desc = "Search" },
+    { "<leader>Nq", "<cmd>ObsidianQuickSwitch<CR>", desc = "Quick Switch" },
+    { "<leader>Nd", "<cmd>ObsidianToday<CR>", desc = "Open Today Note" },
   },
   opts = { -- Usar opts para garantizar la inicialización automática
     workspaces = {
@@ -46,7 +46,7 @@ dependencies = {
         end,
         opts = { noremap = false, expr = true, buffer = true },
       },
-      ["<leader>oh"] = { 
+      ["<leader>Nh"] = { 
         action = function()
           return require("obsidian").util.toggle_checkbox()
         end,

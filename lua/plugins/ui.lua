@@ -14,20 +14,17 @@ return {
 				},
 				hide = { cursorline = true },
 				render = function(props)
-					-- Colores dinámicos según tema activo
-					local accent, text_color
-					local cs = vim.g.colors_name or ""
-					if cs:find("catppuccin") then
-						local cp = require("catppuccin.palettes").get_palette("mocha")
-						accent     = cp.peach
-						text_color = cp.text
-					elseif cs:find("kanagawa") or cs:find("gentleman") then
-						accent     = "#E0C15A"  -- oro: acento firma Gentleman Kanagawa Blur
-						text_color = "#F3F6F9"
-					else  -- sonokai atlantis
-						accent     = "#f39660"  -- orange
-						text_color = "#e2e2e3"  -- fg
+					-- Colores: catppuccin palette (instalado siempre; compatible con sublime)
+					local cp = require("catppuccin.palettes").get_palette("mocha")
+					local accent     = cp.peach
+					local text_color = cp.text
+					-- Diagnóstico: lee del tema activo — funciona con Sublime, Catppuccin, cualquier otro
+					local function hl_fg(name)
+						local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+						return hl.fg and string.format("#%06x", hl.fg) or nil
 					end
+					local err_color  = hl_fg("DiagnosticError") or "#f92672"
+					local warn_color = hl_fg("DiagnosticWarn")  or "#e6db74"
 					local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
 					if filename == "" then filename = "[No Name]" end
 					local modified = vim.bo[props.buf].modified
@@ -42,8 +39,8 @@ return {
 						elseif d.severity == vim.diagnostic.severity.WARN then warns = warns + 1
 						end
 					end
-					if errors > 0 then table.insert(res, { " ■" .. errors, guifg = "#f38ba8" }) end
-					if warns  > 0 then table.insert(res, { " ▲" .. warns,  guifg = "#f9e2af" }) end
+					if errors > 0 then table.insert(res, { " ■" .. errors, guifg = err_color }) end
+					if warns  > 0 then table.insert(res, { " ▲" .. warns,  guifg = warn_color }) end
 					if errors > 0 or warns > 0 then
 						table.insert(res, { "  ", guifg = text_color })
 					end
@@ -109,7 +106,7 @@ return {
 					input = {
 						border = "rounded",
 						keys = {
-							["<Esc>"]  = { "close", mode = { "n", "i" } },
+							["<Esc>"]  = { function(picker) picker:close() end, mode = { "n", "i" } },
 							["<C-Up>"] = false,
 						},
 					},
@@ -117,6 +114,9 @@ return {
 					preview = { border = "rounded" },
 				},
 			},
+			-- snacks.animate: desactivado — mini.animate maneja splits, snacks fade-in/out
+			-- de floats causaba "efectos de opacidad extraños" al abrir/cerrar UI elements
+			animate = { enabled = false },
 			-- snacks.explorer = sidebar-estilo file explorer (diferente al picker flotante)
 			-- LazyVim snacks_picker extra lo activa → conflicto con neo-tree en `nvim .`
 			-- Desactivar: usamos neo-tree como sidebar y mini.files para operaciones

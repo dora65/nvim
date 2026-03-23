@@ -1,4 +1,19 @@
 return {
+  -- Noice: filtrar ECONNRESET (socket TCP que cierra Claude CLI al hacer /exit)
+  -- Usar routes en vez de wrappear vim.notify — evita el warning "overwritten by another plugin"
+  {
+    "folke/noice.nvim",
+    opts = {
+      routes = {
+        {
+          filter = { event = "notify", find = "ECONNRESET" },
+          opts   = { skip = true },
+        },
+      },
+    },
+  },
+
+
   -- ─── mini.files: explorador flotante premium ─────────────────────────────
   -- Reemplaza oil.nvim: misma filosofía (editar filesystem como buffer) pero
   -- con multi-columna estilo ranger y preview de archivos en tiempo real.

@@ -38,7 +38,7 @@ return {
     -- ── Grupos semánticos (etiquetas en el menú) ─────────────────────────────
     opts.spec = opts.spec or {}
     vim.list_extend(opts.spec, {
-      { "<leader>o", group = "Obsidian" },
+      { "<leader>N", group = "Obsidian Notes" },
       { "<leader>m", group = "Markdown" },
       { "<leader>g", group = "Git" },
       { "<leader>c", group = "Code/LSP" },

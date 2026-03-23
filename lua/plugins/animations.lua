@@ -4,7 +4,10 @@ return {
 		"karb94/neoscroll.nvim",
 		event = "VeryLazy",
 		opts = {
-			mappings = { "<C-u>", "<C-d>", "<C-b>", "zt", "zz", "zb" }, -- <C-f> reservado para búsqueda
+			-- Scroll suave en TODOS los ambitos del teclado
+			-- <C-f> excluido: reservado para busqueda (searchbox.nvim)
+			-- <PageUp>/<PageDown> NO son mappings validos de neoscroll — van como keymaps en config
+			mappings = { "<C-u>", "<C-d>", "<C-b>", "<C-e>", "<C-y>", "zt", "zz", "zb" },
 			hide_cursor = false,
 			stop_eof = true,
 			respect_scrolloff = true,
@@ -13,8 +16,21 @@ return {
 			pre_hook = nil,
 			post_hook = nil,
 			performance_mode = false,
-			duration_multiplier = 0.6,
+			duration_multiplier = 0.55,  -- 0.6→0.55: 8% más responsivo (sweet spot fluidez+control)
 		},
+		-- config: setup + mouse scroll suave (WezTerm envia ScrollWheel en alt-screen)
+		config = function(_, opts)
+			local ns = require("neoscroll")
+			ns.setup(opts)
+			-- 4 lineas x 70ms quadratic = scroll preciso (4 vs 5: más control por paso, menos overshooting)
+			vim.keymap.set({ "n", "v" }, "<ScrollWheelUp>", function()
+				ns.scroll(-4, { move_cursor = false, duration = 70 })
+			end, { silent = true, desc = "Smooth scroll up" })
+			vim.keymap.set({ "n", "v" }, "<ScrollWheelDown>", function()
+				ns.scroll(4, { move_cursor = false, duration = 70 })
+			end, { silent = true, desc = "Smooth scroll down" })
+			-- PageUp/Down: keymaps.lua (VeryLazy) los define con step=half-page — no duplicar aquí
+		end,
 	},
 
 	-- ─── Indent animation — líneas de indentación animadas ─────────────────────
@@ -33,7 +49,7 @@ return {
 		},
 		init = function()
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "help", "neo-tree", "Trouble", "lazy", "mason", "toggleterm", "terminal" },
+				pattern = { "markdown", "text", "help", "neo-tree", "Trouble", "lazy", "mason", "toggleterm", "terminal" },
 				callback = function()
 					vim.b.miniindentscope_disable = true
 				end,
@@ -41,50 +57,68 @@ return {
 		end,
 	},
 
-	-- ─── Cursor animado — calibrado para WezTerm 240fps + WebGPU/Mailbox ──────
-	-- Filosofía: fluido pero imperceptible — el usuario siente suavidad, no ve el efecto
-	-- stiffness 0.4: más suave que 0.8 (default), aprovecha los 240fps disponibles
-	-- trailing_stiffness 0.3: cola más larga y elegante (vs 0.5 que se corta rápido)
-	-- smear_between_neighbor_lines: evita salto brusco en movimiento vertical 1 línea
-	-- legacy_computing_symbols_support=false: más seguro en Windows (evita glyph issues)
+	-- ─── Cursor animado — WezTerm 240fps + WebGPU / smear-cursor premium ───────
+	-- Filosofia: elegancia con caracter — trail visible pero no cometa
+	-- stiffness 0.55: visible en movimientos rapidos, sin cola exagerada
+	-- trailing_stiffness 0.35: cola suave y elegante al desplazarse
+	-- smear_between_neighbor_lines: evita salto brusco en movimiento vertical 1 linea
+	-- legacy_computing_symbols_support=false: seguro en Windows (evita glyph issues)
 	{
 		"sphamba/smear-cursor.nvim",
 		event = "VeryLazy",
 		opts = {
-			stiffness = 0.4,
-			trailing_stiffness = 0.3,
-			distance_stop_animating = 0.5,
-			hide_target_hack = true,
+			-- Sweet spot fluido y elegante: baja stiffness = cola larga, natural (ink drop)
+			-- FLUIDEZ: stiffness alto = cola corta/responsiva. trailing bajo = cola elegante.
+			-- damping alto = sin oscilación al parar. distance alto = parada limpia (sin micro-flicker).
+			stiffness = 0.50,                    -- era 0.40: más responsivo en saltos normales
+			trailing_stiffness = 0.25,           -- era 0.18: cola más corta y limpia
+			stiffness_insert_mode = 0.52,        -- era 0.48
+			trailing_stiffness_insert_mode = 0.28, -- era 0.25
+			damping = 0.72,                      -- era 0.65: más amortiguado = sin rebotar
+			damping_insert_mode = 0.82,          -- era 0.75: inserción muy estable
+			-- ANTI-FLICKER: distance_stop_animating alto = terminar limpio antes del micro-parpadeo
+			-- 0.5 (antes) = corre cientos de micro-frames cerca del target = parpadeo visible
+			-- 1.5 = para decididamente al acercarse = elimina el flicker de final de animación
+			distance_stop_animating = 1.5,
+			hide_target_hack = false,            -- era true: causaba flash al ocultar/mostrar cursor
 			smear_between_neighbor_lines = true,
 			legacy_computing_symbols_support = false,
-			-- cursor_color sincronizado dinámicamente con el tema (ver ColorScheme autocmd abajo)
-			cursor_color = "None",
+			-- 8ms = 125fps: balance óptimo fluidez/estabilidad en WezTerm WebGPU
+			-- 4ms (250fps) era demasiado agresivo → competía con render loop → parpadeo
+			time_interval = 8,
+			cursor_color = "#66d9ef",  -- sync con Cursor hl sublime: cyan monokai ST3
+			transparent_bg_fallback_color = "#11111b", -- Evita la sombra gris sobre el fondo
 		},
 		config = function(_, opts)
 			local smear = require("smear_cursor")
 			smear.setup(opts)
 
-			-- Sincronizar color smear con el tema activo:
-			-- Lee Cursor.bg (acento del tema) y re-aplica a smear.
-			-- Consistencia total: smear nvim = cursor WezTerm = cursor PowerShell (todos = accent)
 			local function sync_smear_color()
 				vim.schedule(function()
-					local hl = vim.api.nvim_get_hl(0, { name = "Cursor", link = false })
-					if hl.bg then
-						smear.setup({ cursor_color = string.format("#%06x", hl.bg) })
-					end
+					-- cursor_color: sigue el highlight Cursor del tema activo
+					local c_hl = vim.api.nvim_get_hl(0, { name = "Cursor", link = false })
+					-- transparent_bg_fallback_color: bg real del editor
+					-- Hardcodeado a #1e1f1c (Monokai flat) para garantizar NO artifacts (sombra negra)
+					smear.setup({
+						cursor_color = c_hl.bg and string.format("#%06x", c_hl.bg) or "#cba6f7",
+						transparent_bg_fallback_color = "#1e1f1c",
+					})
 				end)
 			end
 
 			vim.api.nvim_create_autocmd("ColorScheme", { callback = sync_smear_color })
-			vim.api.nvim_create_autocmd("VimEnter",    { once = true, callback = sync_smear_color })
+			vim.api.nvim_create_autocmd("VimEnter", { once = true, callback = sync_smear_color })
 
-			-- Desactivar en terminales: evita artifacts en Claude Code, toggleterm, etc.
-			vim.api.nvim_create_autocmd("TermEnter", {
-				callback = function() smear.enabled = false end,
-			})
-			vim.api.nvim_create_autocmd("TermLeave", {
-				callback = function() smear.enabled = true end,
+			-- Desactivar en terminales (Claude, toggleterm, etc) basado en buftype
+			-- Esto previene la "muerte permanente" si se navega a otra ventana usando click/shortcuts
+			vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+				callback = function()
+					if vim.bo.buftype == "terminal" then
+						smear.enabled = false
+					else
+						smear.enabled = true
+					end
+				end,
 			})
 		end,
 	},
@@ -92,35 +126,54 @@ return {
 	-- ─── Window animations — fade open/close/resize (mini.animate) ─────────────
 	-- scroll=false: neoscroll lo cubre. cursor=false: smear-cursor lo cubre.
 	-- resize: seguro (conflicto noice #761 es scroll-específico, no resize).
+	-- open/close: habilitados para floats (toggleterm, snacks, fzf-lua, etc.)
+	--   con filtro que excluye neo-tree (wipe+resize simultáneos = artefactos).
 	{
 		"nvim-mini/mini.animate",
 		version = false,
 		event = "VeryLazy",
 		opts = function()
 			local animate = require("mini.animate")
+
+			-- Filtro: excluir filetypes que causan artefactos en open/close
+			local skip_ft = {
+				["neo-tree"] = true, ["toggleterm"] = true, ["nofile"] = true,
+				["NvimTree"] = true, ["dashboard"] = true, ["alpha"] = true,
+			}
+			local function float_winconfig(win_id)
+				local ok, buf = pcall(vim.api.nvim_win_get_buf, win_id)
+				if not ok then return nil end
+				local ft = vim.bo[buf].filetype
+				local bt = vim.bo[buf].buftype
+				-- Solo floats, excluir neo-tree y splits normales
+				if skip_ft[ft] or bt == "terminal" then return nil end
+				local cfg = vim.api.nvim_win_get_config(win_id)
+				if not cfg.relative or cfg.relative == "" then return nil end  -- solo floats
+				return animate.gen_winconfig.slide({ direction = "from_edge" })(win_id)
+			end
+
 			return {
 				scroll = { enable = false }, -- delegado a neoscroll
 				cursor = { enable = false }, -- delegado a smear-cursor
 				resize = {
 					enable = true,
-					-- quadratic: más natural que lineal — acelera al inicio, suaviza al final
-					timing = animate.gen_timing.quadratic({ duration = 80, unit = "total" }),
+					-- 60ms quartic ease-out: deceleration premium (4ª potencia = arranque muy rápido,
+					-- final muy suave). Mini.animate actualiza el target en cada keypress
+					-- → key-repeat funciona aunque la animación dure más que el intervalo (~30ms).
+					timing = animate.gen_timing.quartic({ duration = 60, unit = "total" }),
 				},
+				-- open: cubic deceleration — ease-out: rápido al inicio, suave al final
+				-- cubic vs linear: perceptualmente más premium (≈ CSS ease-out cubic-bezier)
 				open = {
 					enable = true,
-					-- static(): posición final, solo fade opacidad (correcto para floats/splits)
-					-- quadratic 150ms: rápido al inicio (responsividad), suave al final (elegancia)
-					-- winblend 90→0: glass reveal — empieza casi transparente, llega a opaco
-					timing = animate.gen_timing.quadratic({ duration = 150, unit = "total" }),
-					winconfig = animate.gen_winconfig.static(),
-					winblend = animate.gen_winblend.linear({ from = 90, to = 0 }),
+					timing   = animate.gen_timing.quartic({ duration = 180, unit = "total" }),
+					winconfig = float_winconfig,
 				},
+				-- close: cubic + más corto (cerrar siempre más rápido que abrir = fluidez)
 				close = {
 					enable = true,
-					-- linear 100ms: cierre limpio y rápido
-					timing = animate.gen_timing.linear({ duration = 100, unit = "total" }),
-					winconfig = animate.gen_winconfig.static(),
-					winblend = animate.gen_winblend.linear({ from = 0, to = 90 }),
+					timing   = animate.gen_timing.quartic({ duration = 110, unit = "total" }),
+					winconfig = float_winconfig,
 				},
 			}
 		end,

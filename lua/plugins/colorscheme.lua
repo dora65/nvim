@@ -1,455 +1,4 @@
--- ─── Kanagawa Blur — paleta de referencia para highlight_overrides ───────────
--- Blur variant hex codes (de variant.lua + windows-terminal.json oficial)
-local K = {
-	none = "NONE",
-	-- Fondos (bg_dark = "none" = transparente en la variante blur)
-	bg = "#1e1f1c", -- fondo terminal — warm olive-dark (ref: Monokai ST3)
-	gray1 = "#252932",
-	gray2 = "#2A3140",
-	gray3 = "#3A4257",
-	gray4 = "#27345C",
-	gray5 = "#5C6170",
-	surface0 = "#282F3E",
-	surface1 = "#2E3748",
-	surface2 = "#38435A",
-	lsp_bg = "#2A3C4C",
-	-- Texto
-	fg = "#F3F6F9",
-	fg_muted = "#5C6170",
-	fg_dim = "#8394A3",
-	-- Acento principal: oro (Ray-Ban aviator — firma del autor)
-	accent = "#E0C15A",
-	-- Colores semánticos
-	red = "#CB7C94",
-	green = "#B7CC85",
-	yellow = "#C8976B", -- muted amber — warnings/semantic only (was #FFE066)
-	orange = "#DEBA87",
-	blue = "#7FB4CA",
-	cyan = "#66d9ef",  -- ST3 bright cyan — tipos builtin, interfaces
-	purple = "#ae81ff", -- ST3 violet — números, constantes, enum members
-	magenta = "#FF8DD7",
-	-- Sintaxis
-	func_ = "#B99BF2",
-	keyword_ = "#C99AD6",
-	str_ = "#9DC87F",  -- spring green — strings (was #DFBD76 amber)
-	comment_ = "#8394A3",
-	type_ = "#8FB8DD",
-	variable_ = "#C4746E",
-	prop_ = "#A1B5C7",
-	var_param = "#C7A8DF",
-	var_mem = "#B8AFC6",
-	type_i = "#66d9ef", -- interface: ST3 cyan — más distintivo que el blue
-	type_s = "#92B3CC", -- type_super
-	-- UI
-	selection = "#1E2A3A",  -- waveBlue-inspired: sutil tint azul, no navy saturado
-	-- Diffs
-	diff_add = "#1E2D1E",
-	diff_chg = "#2D2A1E",
-	diff_del = "#2D211E",
-	diff_txt = "#332F1E",
-}
-
 return {
-	-- ─── Gentleman Kanagawa Blur — tema default ──────────────────────────────────
-	{
-		"Gentleman-Programming/gentleman-kanagawa-blur",
-		name = "gentleman-kanagawa-blur",
-		priority = 1000,
-		opts = {
-			variant = "blur",
-			terminal_colors = true,
-			-- styles: no se especifica → el plugin usa sus propios defaults.
-			-- NUNCA usar { "italic" } (array) → nvim_set_hl recibe key [1] → error.
-			integrations = {
-				-- Módulos exactos del plugin (24 total). Claves inválidas → error "module not found".
-				telescope = true,
-				neo_tree = true,
-				gitsigns = true,
-				noice = true,
-				notify = true,
-				treesitter = true,
-				lsp = true,
-				mason = true,
-				lazy = true,
-				render_markdown = true,
-				snacks = true,
-				flash = true,
-				indent_blankline = true,
-				blink = true, -- blink.cmp (NO blink_cmp)
-				mini = true,
-				markdown = true,
-				-- which_key / trouble / lsp_trouble: no existen en este plugin
-			},
-			-- highlight_overrides: tabla plana — se aplica last, sobreescribe todo.
-			-- Cubre: transparencia, todos los plugins, LSP, C#, sintaxis, UI.
-			highlight_overrides = {
-				-- ── Transparency stack ───────────────────────────────────────────
-				Normal = { bg = K.none },
-				NormalNC = { bg = K.none, fg = K.fg_dim },
-				NormalFloat = { bg = K.none, fg = K.fg },
-				FloatBorder = { fg = K.gray3, bg = K.none },
-				FloatTitle = { fg = K.accent, bg = K.none, bold = true },
-				FloatFooter = { fg = K.fg_dim, bg = K.none },
-				WinSeparator = { fg = K.gray2, bg = K.none },
-				VertSplit = { fg = K.gray2, bg = K.none },
-
-				-- ── Editor base ──────────────────────────────────────────────────
-				CursorLine = { bg = K.surface0 },
-				CursorLineNr = { fg = K.blue, bold = true },
-				LineNr = { fg = K.fg_dim },
-				Pmenu = { bg = K.gray1, fg = K.fg },
-				PmenuSel = { bg = K.surface1, fg = K.fg, bold = true },
-				PmenuSbar = { bg = K.surface0 },
-				PmenuThumb = { bg = K.surface2 },
-				Visual = { bg = K.selection },
-				VisualNOS = { bg = K.selection },
-				Search = { bg = K.surface1, fg = K.fg },
-				IncSearch = { bg = K.orange, fg = K.gray1, bold = true },
-				CurSearch = { bg = K.accent, fg = K.gray1, bold = true },
-				SignColumn = { bg = K.none },
-				FoldColumn = { fg = K.gray3, bg = K.none },
-				Folded = { fg = K.fg_muted, bg = K.surface0, italic = true },
-				StatusLine = { bg = K.surface1, fg = K.fg },
-				StatusLineNC = { bg = K.surface0, fg = K.fg_dim },
-				WinBar = { bg = K.none, fg = K.fg },
-				WinBarNC = { bg = K.none, fg = K.fg_dim },
-				Cursor = { fg = K.gray1, bg = K.accent },
-				lCursor = { fg = K.gray1, bg = K.accent },
-				CursorIM = { fg = K.gray1, bg = K.accent },
-				MatchParen = { fg = K.orange, bg = K.surface1, bold = true },
-
-				-- ── Diff ────────────────────────────────────────────────────────
-				DiffAdd = { bg = K.diff_add },
-				DiffChange = { bg = K.diff_chg },
-				DiffDelete = { bg = K.diff_del },
-				DiffText = { bg = K.diff_txt, bold = true },
-
-				-- ── LSP Diagnostics ──────────────────────────────────────────────
-				DiagnosticError = { fg = K.red },
-				DiagnosticWarn = { fg = K.yellow },
-				DiagnosticInfo = { fg = K.cyan },
-				DiagnosticHint = { fg = K.green },
-				DiagnosticVirtualTextError = { fg = K.red, bg = K.none, italic = true },
-				DiagnosticVirtualTextWarn = { fg = K.yellow, bg = K.none, italic = true },
-				DiagnosticVirtualTextInfo = { fg = K.cyan, bg = K.none },
-				DiagnosticVirtualTextHint = { fg = K.green, bg = K.none },
-				DiagnosticUnderlineError = { sp = K.red, undercurl = true },
-				DiagnosticUnderlineWarn = { sp = K.yellow, undercurl = true },
-				DiagnosticUnderlineInfo = { sp = K.cyan, undercurl = true },
-				DiagnosticUnderlineHint = { sp = K.green, undercurl = true },
-				LspInlayHint = { fg = K.fg_dim, italic = true },
-				LspReferenceText = { bg = K.lsp_bg },
-				LspReferenceRead = { bg = K.lsp_bg },
-				LspReferenceWrite = { bg = K.lsp_bg, bold = true },
-				LspInfoBorder = { fg = K.gray3, bg = K.none },
-
-				-- ── C# / LSP semántico ────────────────────────────────────────────
-				["@lsp.type.interface"] = { fg = K.type_i, italic = true },
-				["@lsp.type.class"] = { fg = K.type_, bold = true },
-				["@lsp.type.method"] = { fg = K.func_, bold = true },
-				["@lsp.type.property"] = { fg = K.prop_ },
-				["@lsp.type.parameter"] = { fg = K.var_param, italic = true },
-				["@lsp.type.namespace"] = { fg = K.fg_dim },
-				["@lsp.type.enumMember"] = { fg = K.purple },
-				["@function.method.call.c_sharp"] = { fg = K.func_, bold = true },
-				["@function.method.c_sharp"] = { fg = K.func_, bold = true },
-				["@variable.member.c_sharp"] = { fg = K.var_mem },
-				["@variable.c_sharp"] = { fg = K.fg },
-				["@type.c_sharp"] = { fg = K.type_, bold = true },
-				["@keyword.modifier.c_sharp"] = { fg = K.keyword_, italic = true },
-
-				-- ── Core syntax (Treesitter overrides) ─────────────────────────────────
-				-- Strings→verde, números/constantes→ST3 violet, builtins→ST3 cyan
-				["@string"] = { fg = K.str_ },
-				["@string.quoted.double"] = { fg = K.str_ },
-				["@string.quoted.single"] = { fg = K.str_ },
-				["@string.special.url"] = { fg = K.blue, underline = true },
-				["@number"] = { fg = K.purple },
-				["@number.float"] = { fg = K.purple },
-				["@boolean"] = { fg = K.purple },
-				["@constant"] = { fg = K.purple },
-				["@constant.builtin"] = { fg = K.cyan, italic = true },
-				["@type.builtin"] = { fg = K.cyan },
-				["@function.builtin"] = { fg = K.cyan },
-				["@variable.builtin"] = { fg = K.cyan, italic = true },
-
-				-- ── Neo-tree ─────────────────────────────────────────────────────
-				NeoTreeNormal = { bg = K.none, fg = K.fg },
-				NeoTreeNormalNC = { bg = K.none, fg = K.fg_dim },
-				NeoTreeWinSeparator = { fg = K.gray2, bg = K.none },
-				NeoTreeEndOfBuffer = { bg = K.none, fg = K.none },
-				NeoTreeCursorLine = { bg = K.surface0 },
-				NeoTreeDimText = { fg = K.fg_dim },
-				NeoTreeIndentMarker = { fg = K.gray3 },
-				NeoTreeGitAdded = { fg = K.green },
-				NeoTreeGitModified = { fg = K.yellow },
-				NeoTreeGitDeleted = { fg = K.red },
-				NeoTreeGitUntracked = { fg = K.cyan },
-				NeoTreeDirectoryIcon = { fg = K.blue },
-				NeoTreeDirectoryName = { fg = K.blue },
-				NeoTreeRootName = { fg = K.accent, bold = true, italic = true },
-				NeoTreeFileName = { fg = K.fg },
-				NeoTreeFileNameOpened = { fg = K.accent, bold = true },
-
-				-- ── Which-key ────────────────────────────────────────────────────
-				WhichKeyFloat = { bg = K.none },
-				WhichKeyBorder = { fg = K.gray3, bg = K.none },
-
-				-- ── Noice ────────────────────────────────────────────────────────
-				NoiceCmdlinePopupBorder = { fg = K.gray3, bg = K.none },
-				NoiceCmdlineIcon = { fg = K.accent },
-
-				-- ── Telescope / Picker ───────────────────────────────────────────
-				TelescopeNormal = { bg = K.none },
-				TelescopeBorder = { fg = K.gray3, bg = K.none },
-				TelescopePromptNormal = { bg = K.none },
-				TelescopePromptBorder = { fg = K.accent, bg = K.none },
-				TelescopePromptTitle = { fg = K.accent, bg = K.none, bold = true },
-				TelescopeResultsNormal = { bg = K.none },
-				TelescopeResultsBorder = { fg = K.gray3, bg = K.none },
-				TelescopePreviewNormal = { bg = K.none },
-				TelescopePreviewBorder = { fg = K.gray3, bg = K.none },
-				TelescopeSelection = { bg = K.surface0, fg = K.fg },
-
-				-- ── Snacks ───────────────────────────────────────────────────────
-				SnacksPickerBorder = { fg = K.gray3, bg = K.none },
-				SnacksNormal = { bg = K.none },
-				SnacksBorder = { fg = K.accent, bg = K.none },
-
-				-- ── Blink.cmp ────────────────────────────────────────────────────
-				BlinkCmpMenuBorder = { fg = K.gray3, bg = K.none },
-				BlinkCmpDocBorder = { fg = K.gray3, bg = K.none },
-				BlinkCmpDocSeparatorLine = { fg = K.gray3 },
-				BlinkCmpGhostText = { fg = K.fg_dim, italic = true },
-				BlinkCmpSignatureHelpBorder = { fg = K.gray3, bg = K.none },
-
-				-- ── Lazy.nvim UI ─────────────────────────────────────────────────
-				LazyNormal = { bg = K.none, fg = K.fg },
-				LazyButton = { bg = K.surface0, fg = K.fg },
-				LazyButtonActive = { bg = K.accent, fg = K.gray1, bold = true },
-				LazyH1 = { bg = K.accent, fg = K.gray1, bold = true },
-
-				-- ── Mason ────────────────────────────────────────────────────────
-				MasonNormal = { bg = K.none },
-
-				-- ── Treesitter Context ───────────────────────────────────────────
-				TreesitterContext = { bg = K.surface0, italic = true },
-				TreesitterContextLineNumber = { fg = K.blue, bg = K.surface0 },
-				TreesitterContextBottom = { sp = K.gray3, underline = true },
-				TreesitterContextSeparator = { fg = K.gray3 },
-
-				-- ── Indent guides ────────────────────────────────────────────────
-				MiniIndentscopeSymbol = { fg = K.gray3 },
-				IndentBlanklineChar = { fg = K.surface0 },
-
-				-- ── Flash/Leap ───────────────────────────────────────────────────
-				FlashLabel = { fg = K.gray1, bg = K.orange, bold = true },
-				FlashMatch = { fg = K.blue, bg = K.surface0 },
-
-				-- ── Claude Code ──────────────────────────────────────────────────
-				ClaudeCodeBorder = { fg = K.accent, bg = K.none },
-				ClaudeCodeTitle = { fg = K.accent, bg = K.none, bold = true },
-
-				-- ── Toggle Terminal ──────────────────────────────────────────────
-				ToggleTermBorder = { fg = K.gray3, bg = K.none },
-
-				-- ── Oil.nvim ─────────────────────────────────────────────────────
-				OilDir = { fg = K.blue, bold = true },
-				OilDirIcon = { fg = K.blue },
-				OilFile = { fg = K.fg },
-				OilLink = { fg = K.cyan, italic = true },
-				OilLinkTarget = { fg = K.cyan },
-				OilCopy = { fg = K.orange, bold = true },
-				OilMove = { fg = K.yellow, bold = true },
-				OilDelete = { fg = K.red, bold = true },
-				OilCreate = { fg = K.green, bold = true },
-
-				-- ── nvim-dbee ────────────────────────────────────────────────────
-				DbeeNormal = { bg = K.none, fg = K.fg },
-				DbeeBorder = { fg = K.accent, bg = K.none },
-				DbeeTitle = { fg = K.accent, bg = K.none, bold = true },
-
-				-- ── Kulala HTTP ──────────────────────────────────────────────────
-				KulalaNormal = { bg = K.none, fg = K.fg },
-				KulalaBorder = { fg = K.accent, bg = K.none },
-				KulalaMethodGet = { fg = K.green, bold = true },
-				KulalaMethodPost = { fg = K.blue, bold = true },    -- POST=blue: crea recursos
-				KulalaMethodPut = { fg = K.orange, bold = true },
-				KulalaMethodDelete = { fg = K.red, bold = true },
-				KulalaMethodPatch = { fg = K.cyan, bold = true },
-				KulalaMethodHead = { fg = K.green, bold = true },
-				KulalaStatusCodeSuccess = { fg = K.green, bold = true },
-				KulalaStatusCodeRedirect = { fg = K.orange, bold = true },
-				KulalaStatusCodeClientError = { fg = K.orange, bold = true },
-				KulalaStatusCodeServerError = { fg = K.red, bold = true },
-				KulalaURL = { fg = K.blue, underline = true },
-				KulalaHeader = { fg = K.cyan },
-				KulalaHeaderValue = { fg = K.fg },
-				KulalaVariableName = { fg = K.purple, italic = true },
-				KulalaVariableValue = { fg = K.orange },
-				KulalaComment = { fg = K.comment_, italic = true },
-				KulalaInlayHint = { fg = K.fg_dim },
-
-				-- ── RenderMarkdown ───────────────────────────────────────────────
-				RenderMarkdownH1 = { fg = K.red, bold = true },
-				RenderMarkdownH2 = { fg = K.orange, bold = true },
-				RenderMarkdownH3 = { fg = K.yellow, bold = true },
-				RenderMarkdownH4 = { fg = K.green, bold = true },
-				RenderMarkdownH5 = { fg = K.cyan, bold = true },
-				RenderMarkdownH6 = { fg = K.purple, bold = true },
-				RenderMarkdownH1Bg = { bg = "#2D1E25" },
-				RenderMarkdownH2Bg = { bg = "#2D2619" },
-				RenderMarkdownH3Bg = { bg = "#2D2B19" },
-				RenderMarkdownH4Bg = { bg = "#1E2D1E" },
-				RenderMarkdownH5Bg = { bg = "#1E252D" },
-				RenderMarkdownH6Bg = { bg = "#231E2D" },
-				RenderMarkdownCode = { bg = K.surface0 },
-				RenderMarkdownCodeInline = { bg = K.surface0, fg = K.orange },
-				RenderMarkdownBullet = { fg = K.accent },
-				RenderMarkdownLink = { fg = K.blue, underline = true },
-				RenderMarkdownTodo = { fg = K.yellow, bold = true },
-				RenderMarkdownQuote = { fg = K.fg_dim, italic = true },
-				RenderMarkdownDash = { fg = K.gray3 },
-				RenderMarkdownTableHead = { fg = K.accent, bold = true },
-				RenderMarkdownTableRow = { fg = K.fg },
-				RenderMarkdownTableFill = { fg = K.gray3 },
-
-				-- ── Mini.files ───────────────────────────────────────────────────
-				MiniFilesNormal = { bg = K.none, fg = K.fg },
-				MiniFilesBorder = { fg = K.gray3, bg = K.none },
-				MiniFilesTitle = { fg = K.fg_dim, bg = K.none },
-				MiniFilesTitleFocused = { fg = K.accent, bg = K.none, bold = true },
-				MiniFilesDirectory = { fg = K.blue, bold = true },
-				MiniFilesCursorLine = { bg = K.surface0 },
-
-				-- ── Mini.icons ───────────────────────────────────────────────────
-				MiniIconsBlue = { fg = K.blue },
-				MiniIconsCyan = { fg = K.cyan },
-				MiniIconsGreen = { fg = K.green },
-				MiniIconsYellow = { fg = K.yellow },
-				MiniIconsOrange = { fg = K.orange },
-				MiniIconsPurple = { fg = K.purple },
-				MiniIconsRed = { fg = K.red },
-				MiniIconsAzure = { fg = K.blue },
-				MiniIconsGrey = { fg = K.fg_dim },
-
-				-- ── GitSigns ─────────────────────────────────────────────────────
-				GitSignsAdd = { fg = K.green },
-				GitSignsChange = { fg = K.yellow },
-				GitSignsDelete = { fg = K.red },
-				GitSignsAddNr = { fg = K.green },
-				GitSignsChangeNr = { fg = K.yellow },
-				GitSignsDeleteNr = { fg = K.red },
-				GitSignsAddLn = { bg = K.diff_add },
-				GitSignsChangeLn = { bg = K.diff_chg },
-
-				-- ── Trouble.nvim ─────────────────────────────────────────────────
-				TroubleNormal = { bg = K.none, fg = K.fg },
-				TroubleText = { fg = K.fg },
-				TroubleCount = { fg = K.yellow, bold = true },
-				TroubleIndent = { fg = K.gray3 },
-				TroubleLocation = { fg = K.fg_dim },
-				TroubleFile = { fg = K.blue, bold = true },
-				TroubleSource = { fg = K.fg_dim },
-
-				-- ── Todo-comments ────────────────────────────────────────────────
-				TodoBgFIX = { fg = K.gray1, bg = K.red, bold = true },
-				TodoBgHACK = { fg = K.gray1, bg = K.yellow, bold = true },
-				TodoBgNOTE = { fg = K.gray1, bg = K.green, bold = true },
-				TodoBgPERF = { fg = K.gray1, bg = K.cyan, bold = true },
-				TodoBgTEST = { fg = K.gray1, bg = K.purple, bold = true },
-				TodoBgTODO = { fg = K.gray1, bg = K.accent, bold = true },
-				TodoBgWARN = { fg = K.gray1, bg = K.orange, bold = true },
-				TodoFgFIX = { fg = K.red },
-				TodoFgHACK = { fg = K.yellow },
-				TodoFgNOTE = { fg = K.green },
-				TodoFgPERF = { fg = K.cyan },
-				TodoFgTEST = { fg = K.purple },
-				TodoFgTODO = { fg = K.accent },
-				TodoFgWARN = { fg = K.orange },
-				TodoSignFIX = { fg = K.red },
-				TodoSignHACK = { fg = K.yellow },
-				TodoSignNOTE = { fg = K.green },
-				TodoSignPERF = { fg = K.cyan },
-				TodoSignTEST = { fg = K.purple },
-				TodoSignTODO = { fg = K.accent },
-				TodoSignWARN = { fg = K.orange },
-
-				-- ── Snacks Notify ─────────────────────────────────────────────────
-				SnacksNotifyERROR = { fg = K.red, bg = K.none },
-				SnacksNotifyWARN = { fg = K.yellow, bg = K.none },
-				SnacksNotifyINFO = { fg = K.cyan, bg = K.none },
-				SnacksNotifyDEBUG = { fg = K.fg_dim, bg = K.none },
-				SnacksNotifyBorderERROR = { fg = K.red },
-				SnacksNotifyBorderWARN = { fg = K.yellow },
-				SnacksNotifyBorderINFO = { fg = K.accent },
-				SnacksNotifyBorderDEBUG = { fg = K.fg_dim },
-				SnacksNotifyTitleERROR = { fg = K.red, bold = true },
-				SnacksNotifyTitleWARN = { fg = K.yellow, bold = true },
-				SnacksNotifyTitleINFO = { fg = K.accent, bold = true },
-				SnacksNotifyTitleDEBUG = { fg = K.fg_dim, bold = true },
-				SnacksNotifyIconERROR = { fg = K.red },
-				SnacksNotifyIconWARN = { fg = K.yellow },
-				SnacksNotifyIconINFO = { fg = K.accent },
-				SnacksNotifyIconDEBUG = { fg = K.fg_dim },
-
-				-- ── TabLine ──────────────────────────────────────────────────────
-				TabLine = { fg = K.fg_muted, bg = K.none },
-				TabLineFill = { fg = K.none, bg = K.none },
-				TabLineSel = { fg = K.accent, bg = K.surface0, bold = true },
-
-				-- ── Quickfix / Help ──────────────────────────────────────────────
-				qfFileName = { fg = K.blue },
-				qfLineNr = { fg = K.accent },
-				qfError = { fg = K.red },
-				helpHyperTextJump = { fg = K.blue, underline = true },
-				helpHeadline = { fg = K.accent, bold = true },
-				helpSectionDelim = { fg = K.gray3 },
-			},
-		},
-	},
-
-	-- ─── Kanagawa Paper — Kanagawa remixed con colores más suaves ──────────────
-	-- Variantes: kanagawa-paper-ink (dark) · kanagawa-paper-canvas (light)
-	-- Lualine: integración nativa con theme = 'kanagawa-paper'
-	{
-		"thesimonho/kanagawa-paper.nvim",
-		name = "kanagawa-paper",
-		priority = 1000,
-		lazy = true, -- carga solo con :colorscheme kanagawa-paper-ink
-		opts = {
-			undercurl = true,
-			transparent = true,    -- Normal/NormalFloat = NONE (stack transparente)
-			gutter = false,        -- signcolumn transparente
-			dim_inactive = true,   -- ventanas inactivas dimmed
-			terminal_colors = true,
-			cache = true,          -- compilar y cachear para startup rápido
-			styles = {
-				comment   = { italic = true },
-				functions = { bold = true },
-				keyword   = { italic = true },
-				statement = { italic = false, bold = false },
-				type      = { italic = false },
-			},
-			auto_plugins = true,   -- detecta plugins activos (treesitter, blink, gitsigns…)
-			-- Refinamientos ST3 + reducción de amarillo (misma filosofía que K palette)
-			overrides = function(_colors)
-				return {
-					-- Números/constantes → ST3 violet #ae81ff (más distintivo que defaults)
-					["@number"]           = { fg = "#ae81ff" },
-					["@number.float"]     = { fg = "#ae81ff" },
-					["@boolean"]          = { fg = "#ae81ff", bold = true },
-					["@constant"]         = { fg = "#ae81ff" },
-					["@constant.builtin"] = { fg = "#66d9ef", italic = true },
-					-- Tipos/builtins → ST3 bright cyan #66d9ef
-					["@type.builtin"]     = { fg = "#66d9ef" },
-					["@function.builtin"] = { fg = "#66d9ef" },
-					["@variable.builtin"] = { fg = "#66d9ef", italic = true },
-				}
-			end,
-		},
-	},
-
 	-- ─── Catppuccin Mocha — tema premium unificado con Windows Terminal ─────────
 	{
 		"catppuccin/nvim",
@@ -462,6 +11,8 @@ return {
 			show_end_of_buffer = false,
 			no_italic = false,
 			no_bold = false,
+			no_underline = false,      -- underlines: URLs, LSP refs, deprecated
+			no_strikethrough = false,  -- strikethrough: deprecated symbols (@lsp.typemod.*.deprecated)
 
 			-- Dim inactivo: 30% para compensar que NormalNC bg=mantle ya da distinción
 			-- NormalNC override abajo hace el trabajo principal; dim_inactive refuerza fg
@@ -472,12 +23,12 @@ return {
 			},
 
 			styles = {
-				comments = { "italic" },
-				conditionals = { "italic" },
-				functions = { "bold" },
-				keywords = { "italic" },
-				strings = {},
-				variables = {},
+				comments    = { "italic" },
+				conditionals= { "italic" },
+				functions   = { "bold" },
+				keywords    = { "italic" },
+				strings     = {},
+				variables   = {},
 			},
 
 			-- Highlight overrides: Gentleman-inspired — full transparency stack
@@ -492,9 +43,9 @@ return {
 						-- ── Fondos: full transparency — el terminal brilla a través ─────
 						Normal = { bg = t },
 						NormalNC = { bg = colors.mantle, fg = colors.overlay0 },
-						NormalFloat = { bg = t, fg = colors.text },
-						FloatBorder = { fg = colors.surface2, bg = t },
-						FloatTitle = { fg = colors.mauve, bg = t, bold = true },
+						NormalFloat = { bg = colors.mantle, fg = colors.text },
+						FloatBorder = { fg = colors.surface2, bg = colors.mantle },
+						FloatTitle = { fg = colors.mauve, bg = colors.mantle, bold = true },
 
 						-- ── Cursor line: sutil sobre transparencia ──────────────────────
 						CursorLine = { bg = colors.surface0 },
@@ -513,7 +64,9 @@ return {
 						NeoTreeNormalNC = { bg = t, fg = colors.subtext0 },
 						NeoTreeWinSeparator = { fg = colors.mantle, bg = t },
 						NeoTreeEndOfBuffer = { bg = t, fg = t },
-						NeoTreeCursorLine = { bg = colors.surface1 },
+						-- surface1 #45475a = apenas visible sobre terminal bg #1e1e2e (2.8:1)
+					-- surface2 #585b70 = claramente visible (4.2:1) — mismo principio que PmenuSel
+					NeoTreeCursorLine = { bg = colors.overlay0 },  -- overlay0 #6c7086 = 4.1:1 contraste real
 						NeoTreeDimText = { fg = colors.overlay0 },
 						NeoTreeIndentMarker = { fg = colors.surface1 },
 						NeoTreeGitAdded = { fg = colors.green },
@@ -526,6 +79,36 @@ return {
 						NeoTreeFileName = { fg = colors.text },
 						-- Archivo activo: brilla en mauve para indicar que esta abierto
 						NeoTreeFileNameOpened = { fg = colors.mauve, bold = true },
+						-- Highlights faltantes (usados en git_status component de neo-tree.lua)
+						NeoTreeGitStaged   = { fg = colors.green,  bold = true },
+						NeoTreeGitConflict = { fg = colors.red,    bold = true },
+						NeoTreeGitRenamed  = { fg = colors.yellow },
+						-- DropBar: menú dropdown integrado con paleta Catppuccin
+						DropBarIconUISeparator    = { fg = colors.overlay0 },
+						DropBarMenuNormalFloat    = { bg = colors.mantle,   fg = colors.text },
+						DropBarMenuFloatBorder    = { fg = colors.surface2, bg = colors.mantle },
+						DropBarMenuHoverEntry     = { bg = "#3a2d52",       fg = colors.text, bold = true },
+						DropBarMenuCurrentContext = { bg = colors.surface1, fg = colors.subtext0 },
+						DropBarKindFile      = { fg = colors.blue },
+						DropBarKindFolder    = { fg = colors.overlay0 },
+						DropBarKindFunction  = { fg = colors.blue },
+						DropBarKindMethod    = { fg = colors.blue },
+						DropBarKindClass     = { fg = colors.yellow },
+						DropBarKindModule    = { fg = colors.lavender },
+						DropBarKindInterface = { fg = colors.yellow },
+						DropBarKindVariable  = { fg = colors.text },
+						DropBarKindProperty  = { fg = colors.teal },
+						DropBarKindField     = { fg = colors.teal },
+						DropBarKindConstant  = { fg = colors.lavender },
+						DropBarKindEnum      = { fg = colors.lavender },
+						DropBarKindKeyword   = { fg = colors.mauve },
+						DropBarKindString    = { fg = colors.green },
+						-- BqfPreview: preview float del quickfix
+						BqfPreviewBorder  = { fg = colors.surface2 },
+						BqfPreviewTitle   = { fg = colors.mauve,  bold = true },
+						BqfPreviewRange   = { bg = "#3a2d52",     bold = true },
+						BqfPreviewBufLabel= { fg = colors.mauve,  italic = true },
+						BqfSign           = { fg = colors.mauve },
 
 						-- ── Status line: transparente (lualine catppuccin integration lo maneja) ─
 						StatusLine = { bg = t, fg = colors.text },
@@ -533,18 +116,18 @@ return {
 						StatusLineNC = { bg = t, fg = colors.overlay0 },
 
 						-- ── Which-key: transparente ─────────────────────────────────────
-						WhichKeyFloat = { bg = t },
-						WhichKeyBorder = { fg = colors.surface1, bg = t },
+						WhichKeyFloat = { bg = colors.mantle },
+						WhichKeyBorder = { fg = colors.surface2, bg = colors.mantle },
 
-						-- ── Claude Code: borde mauve premium ────────────────────────────
-						ClaudeCodeBorder = { fg = colors.mauve, bg = t },
-						ClaudeCodeTitle = { fg = colors.mauve, bg = t, bold = true },
+						-- ── Claude Code: surface2 = uniforme con FloatBorder, título mauve ──
+						ClaudeCodeBorder = { fg = colors.surface2, bg = colors.mantle },
+						ClaudeCodeTitle = { fg = colors.mauve, bg = colors.mantle, bold = true },
 
 						-- ── Terminal integrado ──────────────────────────────────────────
-						ToggleTermBorder = { fg = colors.surface1, bg = t },
+						ToggleTermBorder = { fg = colors.surface2, bg = colors.mantle },
 
 						-- ── Noice ───────────────────────────────────────────────────────
-						NoiceCmdlinePopupBorder = { fg = colors.surface1, bg = t },
+						NoiceCmdlinePopupBorder = { fg = colors.surface2, bg = colors.mantle },
 						NoiceCmdlineIcon = { fg = colors.mauve },
 
 						-- ── Telescope/Picker: full transparent ──────────────────────────
@@ -560,7 +143,7 @@ return {
 						TelescopeSelection = { bg = colors.surface0, fg = colors.text },
 
 						-- ── Snacks picker ───────────────────────────────────────────────
-						SnacksPickerBorder = { fg = colors.surface1, bg = t },
+						SnacksPickerBorder = { fg = colors.surface2, bg = t },
 
 						-- ── Indent guides: muy discretos ────────────────────────────────
 						MiniIndentscopeSymbol = { fg = colors.surface1 },
@@ -581,16 +164,28 @@ return {
 						WinBarNC = { bg = t, fg = colors.overlay0 },
 
 						-- ── SignColumn: transparente ─────────────────────────────────────
-						SignColumn = { bg = t },
-						FoldColumn = { fg = colors.surface1, bg = t },
+						SignColumn     = { bg = t },
+						FoldColumn     = { fg = colors.surface1, bg = t },
+						CursorLineSign = { bg = colors.surface0 },            -- sign col en cursor line = fondo CursorLine (sin gap)
+						CursorLineFold = { bg = colors.surface0 },            -- fold col en cursor line = fondo CursorLine (sin gap)
 
-						-- ── Snacks terminal/float: transparente ─────────────────────────
-						SnacksNormal = { bg = t },
-						SnacksBorder = { fg = colors.mauve, bg = t },
+						-- ── Listchars: dots/arrows sutiles (con vim.opt.list=true) ──────
+						Whitespace  = { fg = colors.surface1 },               -- space dots (·) tab arrows (→) — casi invisibles
+						NonText     = { fg = colors.surface0 },               -- extends/precedes/eob — receden al fondo
+						SpecialKey  = { fg = colors.surface1 },               -- SpecialKey contexts (^I etc)
+
+						-- ── vim-illuminate: word occurrences (LazyVim dep) ───────────
+						IlluminatedWordText  = { bg = colors.surface1 },
+						IlluminatedWordRead  = { bg = colors.surface1 },
+						IlluminatedWordWrite = { bg = colors.surface1, underline = true, sp = colors.lavender },
+
+						-- ── Snacks terminal/float: surface2 uniforme ────────────────────
+						SnacksNormal = { bg = colors.mantle },
+						SnacksBorder = { fg = colors.surface2, bg = colors.mantle },
 
 						-- ── Database (nvim-dbee) ────────────────────────────────────────
-						DbeeNormal = { bg = t, fg = colors.text },
-						DbeeBorder = { fg = colors.mauve, bg = t },
+						DbeeNormal = { bg = colors.mantle, fg = colors.text },
+						DbeeBorder = { fg = colors.mauve, bg = colors.mantle },
 						DbeeTitle = { fg = colors.mauve, bg = t, bold = true },
 
 						-- ── Cursor premium ──────────────────────────────────────────────
@@ -630,7 +225,7 @@ return {
 						LspReferenceText = { bg = colors.surface0 },
 						LspReferenceRead = { bg = colors.surface0 },
 						LspReferenceWrite = { bg = colors.surface0, bold = true },
-						LspInfoBorder = { fg = colors.surface1, bg = t },
+						LspInfoBorder = { fg = colors.surface2, bg = colors.mantle },
 
 						-- ── LSP Inlay Hints: overlay1 italic — secundarios, badge sobre mantle ──
 						-- overlay1 (#7f849c) ≈ 5:1 contraste: más legible que overlay0 sin competir
@@ -648,7 +243,7 @@ return {
 						["@lsp.type.class"] = { fg = colors.yellow, bold = true },
 						["@lsp.type.method"] = { fg = colors.blue, bold = true },
 						["@lsp.type.property"] = { fg = colors.teal },
-						["@lsp.type.parameter"] = { fg = colors.maroon, italic = true },
+						["@lsp.type.parameter"] = { fg = colors.peach, italic = true }, -- ST3 orange lane = peach
 						-- Kanagawa principle: namespace es estructural, no semántico → overlay1 (dim)
 						["@lsp.type.namespace"] = { fg = colors.overlay1 },
 						-- enumMember: lavender — distinto de class (yellow) y property (teal)
@@ -667,13 +262,13 @@ return {
 						FlashMatch = { fg = colors.lavender, bg = colors.surface0 },
 
 						-- ── Lazy.nvim UI ────────────────────────────────────────────────
-						LazyNormal = { bg = t, fg = colors.text },
+						LazyNormal = { bg = colors.mantle, fg = colors.text },
 						LazyButton = { bg = colors.surface0, fg = colors.text },
 						LazyButtonActive = { bg = colors.mauve, fg = colors.base, bold = true },
 						LazyH1 = { bg = colors.mauve, fg = colors.base, bold = true },
 
 						-- ── Mason ───────────────────────────────────────────────────────
-						MasonNormal = { bg = t },
+						MasonNormal = { bg = colors.mantle },
 
 						-- ── Treesitter Context: cabecera sticky (función/clase actual) ───
 						-- Sin esto el contexto es casi invisible sobre fondo transparente
@@ -683,11 +278,11 @@ return {
 						TreesitterContextSeparator = { fg = colors.surface1 },
 
 						-- ── Blink.cmp: completion menu unificado ────────────────────────
-						BlinkCmpMenuBorder = { fg = colors.surface1, bg = t },
-						BlinkCmpDocBorder = { fg = colors.surface1, bg = t },
-						BlinkCmpDocSeparatorLine = { fg = colors.surface1 },
+						BlinkCmpMenuBorder = { fg = colors.surface2, bg = colors.mantle },
+						BlinkCmpDocBorder = { fg = colors.surface2, bg = colors.mantle },
+						BlinkCmpDocSeparatorLine = { fg = colors.surface2 },
 						BlinkCmpGhostText = { fg = colors.overlay0, italic = true },
-						BlinkCmpSignatureHelpBorder = { fg = colors.surface1, bg = t },
+						BlinkCmpSignatureHelpBorder = { fg = colors.surface2, bg = colors.mantle },
 
 						-- ── Oil.nvim: legibilidad en file browser ────────────────────────
 						OilDir = { fg = colors.lavender, bold = true },
@@ -701,8 +296,8 @@ return {
 						OilCreate = { fg = colors.green, bold = true },
 
 						-- ── Kulala HTTP client: panel respuesta + sintaxis .http ─────────
-						KulalaNormal = { bg = t, fg = colors.text },
-						KulalaBorder = { fg = colors.mauve, bg = t },
+						KulalaNormal = { bg = colors.mantle, fg = colors.text },
+						KulalaBorder = { fg = colors.mauve, bg = colors.mantle },
 						-- Métodos HTTP con color semántico
 						KulalaMethodGet = { fg = colors.green, bold = true },
 						KulalaMethodPost = { fg = colors.yellow, bold = true },
@@ -726,7 +321,7 @@ return {
 						KulalaComment = { fg = colors.overlay0, italic = true },
 						-- Inlay icons (loading · done · error)
 						KulalaInlayHint = { fg = colors.surface2 },
-						
+
 						-- u2500u2500 SnacksNotify: notificaciones con identidad Catppuccin u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500
 						SnacksNotifyERROR = { fg = colors.red },
 						SnacksNotifyWARN  = { fg = colors.yellow },
@@ -744,19 +339,21 @@ return {
 						SnacksNotifyIconWARN    = { fg = colors.yellow },
 						SnacksNotifyIconINFO    = { fg = colors.teal },
 						SnacksNotifyIconDEBUG   = { fg = colors.overlay0 },
-						
+
 						-- u2500u2500 TabLine: barra de pestanas nativa nvim u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500
 						TabLine     = { fg = colors.overlay1, bg = colors.mantle },
 						TabLineFill = { fg = t,               bg = colors.mantle },
 						TabLineSel  = { fg = colors.mauve,    bg = colors.surface0, bold = true },
-						
+
 						-- u2500u2500 RenderMarkdown: jerarquia visual con tints Catppuccin u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500
-						RenderMarkdownH1 = { fg = colors.red,     bold = true },
-						RenderMarkdownH2 = { fg = colors.peach,   bold = true },
-						RenderMarkdownH3 = { fg = colors.yellow,  bold = true },
-						RenderMarkdownH4 = { fg = colors.green,   bold = true },
-						RenderMarkdownH5 = { fg = colors.teal,    bold = true },
-						RenderMarkdownH6 = { fg = colors.mauve,   bold = true },
+						-- Headings: jerarquía luminancia (Kanagawa) — warm-white→olive-dim
+						-- NO rainbow: gradiente comunica jerarquía sin ruido visual
+						RenderMarkdownH1 = { fg = "#e8e6e0", bold = true },   -- H1: máximo brillo
+						RenderMarkdownH2 = { fg = "#cccac4", bold = true },   -- H2: brillante
+						RenderMarkdownH3 = { fg = "#b0aea8", bold = true },   -- H3: medio
+						RenderMarkdownH4 = { fg = "#969490", bold = true },   -- H4: dim
+						RenderMarkdownH5 = { fg = "#7c7a76", italic = true }, -- H5: muy dim italic
+						RenderMarkdownH6 = { fg = "#75715e", italic = true }, -- H6: comment-level
 						RenderMarkdownH1Bg = { bg = "#2D1B28" },  -- red/mantle tint
 						RenderMarkdownH2Bg = { bg = "#2D2218" },  -- peach/mantle tint
 						RenderMarkdownH3Bg = { bg = "#2D2B18" },  -- yellow/mantle tint
@@ -765,20 +362,20 @@ return {
 						RenderMarkdownH6Bg = { bg = "#261C2D" },  -- mauve/mantle tint
 						RenderMarkdownCode = { bg = colors.mantle },
 						RenderMarkdownCodeInline = { bg = colors.surface0, fg = colors.peach },
-						RenderMarkdownBullet = { fg = colors.mauve },
+						RenderMarkdownBullet = { fg = "#fd971f" },       -- orange ST3 (menos invasivo que red/mauve)
 						RenderMarkdownLink   = { fg = colors.blue, underline = true },
 						RenderMarkdownTodo   = { fg = colors.yellow, bold = true },
-						RenderMarkdownQuote  = { fg = colors.overlay0, italic = true },
+						RenderMarkdownQuote  = { fg = "#8a8878",         italic = true }, -- muted olive (Kanagawa: UI recede)
 						RenderMarkdownDash   = { fg = colors.surface1 },
 						RenderMarkdownTableHead = { fg = colors.mauve, bold = true },
 						RenderMarkdownTableRow  = { fg = colors.text },
 						RenderMarkdownTableFill = { fg = colors.surface1 },
-						
+
 						-- u2500u2500 MiniFiles: file explorer flotante u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500u2500
-						MiniFilesNormal       = { bg = t, fg = colors.text },
-						MiniFilesBorder       = { fg = colors.surface1, bg = t },
-						MiniFilesTitle        = { fg = colors.overlay1, bg = t },
-						MiniFilesTitleFocused = { fg = colors.mauve, bg = t, bold = true },
+						MiniFilesNormal       = { bg = colors.mantle, fg = colors.text },
+						MiniFilesBorder       = { fg = colors.surface2, bg = colors.mantle },
+						MiniFilesTitle        = { fg = colors.overlay1, bg = colors.mantle },
+						MiniFilesTitleFocused = { fg = colors.mauve, bg = colors.mantle, bold = true },
 						MiniFilesDirectory    = { fg = colors.blue, bold = true },
 						MiniFilesCursorLine   = { bg = colors.surface0 },
 						-- ── Treesitter: jerárquía de color AST-aware (Kanagawa principle) ────────────────────
@@ -787,14 +384,15 @@ return {
 
 						-- Variables
 						["@variable"]              = { fg = colors.text },
-						["@variable.builtin"]      = { fg = colors.mauve },           -- self, this, super
-						["@variable.parameter"]    = { fg = colors.maroon, italic = true }, -- parámetros de fn
-						["@variable.member"]       = { fg = colors.teal },            -- fields de struct/object
+						["@variable.builtin"]      = { fg = colors.mauve, italic = true },  -- self/this/super (Kanagawa: builtins=italic)
+						["@variable.parameter"]         = { fg = colors.peach, italic = true }, -- parámetros fn: peach=ST3 orange #fd971f equiv
+						["@variable.parameter.builtin"] = { fg = colors.peach, bold = true, italic = true }, -- self/this/super
+						["@variable.member"]            = { fg = colors.teal },          -- fields de struct/object
 
 						-- Funciones
 						["@function"]              = { fg = colors.blue, bold = true },
 						["@function.call"]         = { fg = colors.blue },
-						["@function.builtin"]      = { fg = colors.peach },           -- print, len, range
+						["@function.builtin"]      = { fg = colors.peach, italic = true },  -- print/len/range (italic=magia del lenguaje)
 						["@function.method"]       = { fg = colors.blue, bold = true },
 						["@function.method.call"]  = { fg = colors.blue },
 						["@constructor"]           = { fg = colors.sapphire },        -- distinto de fn(blue) y type(yellow)
@@ -811,20 +409,28 @@ return {
 						["@keyword.import"]        = { fg = colors.teal, italic = true }, -- import, using, require
 						["@keyword.operator"]      = { fg = colors.teal, bold = true }, -- is, in, not, and, or
 						["@keyword.type"]          = { fg = colors.yellow },          -- type keyword (TypeScript)
+						-- Explícitos para garantizar italic aunque styles-propagation falle
+						["@keyword"]               = { fg = colors.mauve, italic = true },             -- base keyword: italic universal
+						["@keyword.conditional"]   = { fg = colors.mauve, italic = true },             -- if/else/switch/match/when
+						["@keyword.loop"]          = { fg = colors.mauve, italic = true },             -- for/while/do/loop/repeat
+						["@keyword.coroutine"]     = { fg = colors.blue,  italic = true },             -- async/await/yield → azul async lane
+						["@keyword.modifier"]      = { fg = colors.mauve, italic = true },             -- public/private/protected/override/sealed
+						["@keyword.function"]      = { fg = colors.mauve, italic = true },             -- 'function'/'def'/'fn' (ST3: storage.type = italic)
+						["@keyword.storage"]       = { fg = colors.mauve, italic = true },             -- var/let/const/val/ref (declaracion de variable)
 
 						-- Constantes y literales numéricos
 						["@constant"]              = { fg = colors.peach },
-						["@constant.builtin"]      = { fg = colors.peach, bold = true }, -- nil, true, false, None
+						["@constant.builtin"]      = { fg = colors.lavender, bold = true }, -- nil/true/false/None → ST3 purple lane
 						["@constant.macro"]        = { fg = colors.mauve },           -- #define macros
-						["@number"]                = { fg = colors.peach },
-						["@number.float"]          = { fg = colors.peach },
-						["@boolean"]               = { fg = colors.peach, bold = true },
+						["@number"]                = { fg = colors.lavender },             -- ST3 #ae81ff → lavender
+						["@number.float"]          = { fg = colors.lavender },
+						["@boolean"]               = { fg = colors.lavender, bold = true },
 
 						-- Strings: diferenciación interna crítica (principio Kanagawa)
 						["@string"]                = { fg = colors.green },
-						["@string.escape"]         = { fg = colors.pink },            -- \n \t \\ escapes resaltados
+						["@string.escape"]         = { fg = colors.maroon },         -- Kanagawa sakuraPink: sutil            -- \n \t \\ escapes resaltados
 						["@string.regexp"]         = { fg = colors.peach },           -- regex patterns
-						["@string.special"]        = { fg = colors.pink },            -- format strings %s, {}
+						["@string.special"]        = { fg = colors.maroon },         -- maroon: elegante no agresivo            -- format strings %s, {}
 						-- URLs en código: blue+underline — mismo estándar que VS Code/Sublime/JetBrains
 						["@string.special.url"]         = { fg = colors.blue, underline = true },
 						["@string.special.url.comment"] = { fg = colors.sky, underline = true },
@@ -843,8 +449,27 @@ return {
 						["@comment.error"]         = { fg = colors.red, bold = true },
 						["@comment.documentation"] = { fg = colors.sky, italic = true }, -- JSDoc, docstrings
 
-						-- Markup: inline code con fondo sutil — JetBrains pattern (legibilidad en docs)
-						["@markup.raw.inline"]     = { fg = colors.teal, bg = colors.surface0 },
+						-- ── Markup/Markdown: hex Monokai Night exactos (ref: syntax.json, override por autocmd) ──
+						["@markup.heading"]               = { fg = "#BDBDBD", bold = true },
+						["@markup.heading.marker"]        = { fg = "#FD9621" },
+						["@markup.heading.1.markdown"]    = { fg = "#e8e6e0", bold = true }, -- H1: máximo brillo
+						["@markup.heading.2.markdown"]    = { fg = "#cccac4", bold = true }, -- H2: brillante
+						["@markup.heading.3.markdown"]    = { fg = "#b0aea8", bold = true }, -- H3: medio
+						["@markup.heading.4.markdown"]    = { fg = "#969490", bold = true }, -- H4: dim
+						["@markup.heading.5.markdown"]    = { fg = "#7c7a76", italic = true }, -- H5: muy dim italic
+						["@markup.heading.6.markdown"]    = { fg = "#75715e", italic = true }, -- H6: comment-level
+						["@markup.bold"]                  = { bold = true },                      -- style-only: bold inherits fg
+						["@markup.italic"]                = { italic = true },                    -- style-only: italic inherits fg
+						["@markup.strikethrough"]         = { fg = "#75715E", strikethrough = true },
+						["@markup.raw.inline"]            = { fg = "#FD9621" },
+						["@markup.link"]                  = { fg = "#66D9EF" },
+						["@markup.link.url"]              = { fg = "#66D9EF", underline = true },
+						["@markup.link.label"]            = { fg = "#967EFB", italic = true },
+						["@markup.list"]                  = { fg = "#fd971f" },  -- orange: bullets estructurales
+						["@markup.list.checked"]          = { fg = "#A6E22E" },
+						["@markup.list.unchecked"]        = { fg = "#75715E" },
+						["@markup.quote"]                 = { fg = "#8a8878", italic = true },  -- muted olive (UI recede)
+						["@markup.math"]                  = { fg = "#967EFB" },
 
 						-- Tags HTML/JSX/TSX/Svelte
 						["@tag"]                   = { fg = colors.mauve },
@@ -863,6 +488,8 @@ return {
 						["@lsp.type.macro"]                      = { fg = colors.mauve },
 						["@lsp.type.enum"]                       = { fg = colors.yellow },
 						["@lsp.type.struct"]                     = { fg = colors.yellow, bold = true },
+						["@lsp.type.event"]                      = { fg = colors.yellow, italic = true },  -- C# event (tipo-nivel)
+						["@lsp.type.delegate"]                   = { fg = colors.yellow, italic = true },  -- C# delegate (tipo callable)
 						["@lsp.type.typeParameter"]              = { fg = colors.peach, italic = true }, -- T, K, V
 						["@lsp.typemod.variable.readonly"]       = { fg = colors.lavender },       -- const vars
 						["@lsp.typemod.variable.defaultLibrary"] = { fg = colors.peach },          -- console, process
@@ -873,6 +500,40 @@ return {
 						["@lsp.typemod.variable.deprecated"]     = { fg = colors.overlay0, strikethrough = true },
 						["@lsp.typemod.function.deprecated"]     = { fg = colors.overlay0, strikethrough = true },
 						["@lsp.typemod.keyword.documentation"]   = { fg = colors.overlay1, italic = true }, -- @param
+
+						-- ── Static members: italic = "clase/nivel" (no instancia) ───────────────────────────
+						-- Principio: italic indica que el símbolo NO pertenece a una instancia concreta
+						["@lsp.typemod.method.static"]           = { fg = colors.blue,     italic = true },             -- Math.Abs, Console.Write
+						["@lsp.typemod.property.static"]         = { fg = colors.teal,     italic = true },             -- static prop
+						["@lsp.typemod.field.static"]            = { fg = colors.teal,     italic = true },             -- static field
+						["@lsp.typemod.variable.static"]         = { fg = colors.lavender, italic = true },             -- static var/const class-level
+
+						-- ── Abstract / Virtual: italic+bold = contrato no implementado ───────────────────────
+						-- bold = peso semántico alto (hay contrato), italic = no-concreto
+						["@lsp.typemod.method.abstract"]         = { fg = colors.blue,     italic = true, bold = true },
+						["@lsp.typemod.property.abstract"]       = { fg = colors.teal,     italic = true, bold = true },
+						["@lsp.typemod.method.virtual"]          = { fg = colors.blue,     italic = true },             -- overridable (sin bold: tiene impl)
+
+						-- ── Extension methods (C# this-parameter, LINQ) ───────────────────────────────────────
+						["@lsp.typemod.method.extension"]        = { fg = colors.blue,     italic = true },
+
+						-- ── Readonly / immutable: lavender lane (const principle) ────────────────────────────
+						["@lsp.typemod.property.readonly"]       = { fg = colors.lavender },                            -- string.Length, .Count
+						["@lsp.typemod.field.readonly"]          = { fg = colors.lavender },                            -- readonly field
+
+						-- ── Sealed: bold sin italic = concreto+cerrado ────────────────────────────────────────
+						["@lsp.typemod.class.sealed"]            = { fg = colors.yellow,   bold = true },
+
+						-- ── Stdlib / defaultLibrary: peach lane = magic del runtime ──────────────────────────
+						["@lsp.typemod.type.defaultLibrary"]     = { fg = colors.peach },                               -- IEnumerable, Task, ValueTuple
+						["@lsp.typemod.class.defaultLibrary"]    = { fg = colors.peach },                               -- Console, Math, String, GC
+						["@lsp.typemod.method.defaultLibrary"]   = { fg = colors.peach },                               -- .ToString(), .GetHashCode()
+
+						-- ── Deprecated members: overlay0+strikethrough (requiere no_strikethrough=false) ──────
+						["@lsp.typemod.property.deprecated"]     = { fg = colors.overlay0, strikethrough = true },
+						["@lsp.typemod.field.deprecated"]        = { fg = colors.overlay0, strikethrough = true },
+						["@lsp.typemod.class.deprecated"]        = { fg = colors.overlay0, italic = true },
+						["@lsp.typemod.method.deprecated"]       = { fg = colors.overlay0, strikethrough = true },
 
 						-- ── Blink.cmp: completion kinds con identidad visual (Kanagawa mapping) ───────
 						-- Cada kind = color de su rol semántico. Consistente con treesitter + LSP arriba.
@@ -919,7 +580,70 @@ return {
 						RainbowDelimiterYellow   = { fg = colors.yellow },   -- nivel 4: tipos/clases
 						RainbowDelimiterPeach    = { fg = colors.peach },    -- nivel 5: números/literales
 						RainbowDelimiterLavender = { fg = colors.lavender }, -- nivel 6: constantes/enum
-						RainbowDelimiterPink     = { fg = colors.pink },     -- nivel 7: escapes/especiales
+						RainbowDelimiterPink     = { fg = colors.maroon },   -- nivel 7: escapes/esp (maroon=sutil)
+
+						-- ── @character: literales de caracter (’a’, ’\n’) en C/C#/Java ────────────────
+						-- maroon = familia "literales especiales" (consistente con @string.escape)
+						Character                  = { fg = colors.maroon },
+						SpecialChar                = { fg = colors.maroon },
+						["@character"]             = { fg = colors.maroon },
+						["@character.special"]     = { fg = colors.maroon },
+
+						-- ── Satellite.nvim: scrollbar premium con HUD de navegacion ─────────────
+						-- Cursor=mauve (acento), Search=peach (destacado), Diag=semantic, Git=semantic
+						SatelliteBar                 = { fg = colors.overlay0, bg = "NONE" },
+						SatelliteCursor              = { fg = colors.mauve,   bg = "NONE" },
+						SatelliteSearch              = { fg = colors.peach,   bg = "NONE" },
+						SatelliteDiagnosticError     = { fg = colors.red,     bg = "NONE" },
+						SatelliteDiagnosticWarn      = { fg = colors.yellow,  bg = "NONE" },
+						SatelliteDiagnosticInfo      = { fg = colors.sky,     bg = "NONE" },
+						SatelliteDiagnosticHint      = { fg = colors.teal,    bg = "NONE" },
+						SatelliteGitsignsAdd         = { fg = colors.green,   bg = "NONE" },
+						SatelliteGitsignsChange      = { fg = colors.yellow,  bg = "NONE" },
+						SatelliteGitsignsDelete      = { fg = colors.red,     bg = "NONE" },
+						-- ── FzfLua: picker flotante transparente ────────────────────────────────────────────
+						FzfLuaNormal        = { bg = colors.mantle, fg = colors.text },
+						FzfLuaBorder        = { fg = colors.surface2, bg = colors.mantle },
+						FzfLuaTitle         = { fg = colors.mauve, bg = colors.mantle, bold = true },
+						FzfLuaPreviewBorder = { fg = colors.surface2, bg = colors.mantle },
+						FzfLuaPreviewTitle  = { fg = colors.overlay1, bg = colors.mantle },
+						FzfLuaFzfBorder     = { fg = colors.surface2 },
+						FzfLuaFzfSeparator  = { fg = colors.surface2 },
+						FzfLuaFzfGutter     = { bg = t },
+						FzfLuaCursorLine    = { bg = colors.surface0 },
+
+						-- ── GrugFar: search/replace panel ──────────────────────────────────────────────
+						GrugFarNormal       = { bg = colors.mantle, fg = colors.text },
+						GrugFarBorder       = { fg = colors.surface2, bg = colors.mantle },
+						GrugFarInputNormal  = { bg = colors.surface0, fg = colors.text },
+						GrugFarInputBorder  = { fg = colors.surface2, bg = colors.surface0 },
+
+						-- ── Trouble: lista de diagnósticos ──────────────────────────────────────────────
+						TroubleNormal       = { bg = t, fg = colors.text },
+						TroubleNormalNC     = { bg = t, fg = colors.overlay0 },
+
+						-- ── DiffView: paneles de code review ──────────────────────────────────────────
+						DiffviewNormal            = { bg = t, fg = colors.text },
+						DiffviewCursorLine        = { bg = colors.surface0 },
+						DiffviewFilePanelFileName  = { fg = colors.text },
+						DiffviewFilePanelTitle     = { fg = colors.mauve, bold = true },
+						DiffviewFolderName         = { fg = colors.blue },
+						DiffviewFilePanelSelected  = { bg = colors.surface0, fg = colors.mauve },
+
+						-- ── MiniIcons: catppuccin latte color mapping → mocha ────────────────────────
+						-- Solo glifos/iconos. Texto/labels: gestionados por NeoTree/Blink highlights.
+						-- latte semantic → mocha equivalente (mismo nombre de color, diferente hex).
+						MiniIconsAzure  = { fg = colors.sky },      -- .ts, .cs, .go (sky #89dceb)
+						MiniIconsBlue   = { fg = colors.blue },     -- .lua, .vim, .py (blue #89b4fa)
+						MiniIconsCyan   = { fg = colors.teal },     -- .sh, .bash, .zsh (teal #94e2d5)
+						MiniIconsGreen  = { fg = colors.green },    -- .md, .txt, .env (green #a6e3a1)
+						MiniIconsGrey   = { fg = colors.overlay1 }, -- sin icono / unknown
+						MiniIconsOrange = { fg = colors.peach },    -- .rs, .html, .c (peach #fab387)
+						MiniIconsPurple = { fg = colors.lavender }, -- .rb, .ex, .clj (lavender #b4befe)
+						MiniIconsRed    = { fg = colors.red },      -- .err, .lock, .log
+						MiniIconsWhite  = { fg = colors.text },     -- .toml, .yaml, .ini
+						MiniIconsYellow = { fg = colors.yellow },   -- .js, .json, .cpp (yellow #f9e2af)
+
 
 
 					}
@@ -950,22 +674,6 @@ return {
 		},
 	},
 
-	-- ─── Sonokai (Monokai Pro / Sublime Text 3 ADN) ─────────────────────────────
-	{
-		"sainnhe/sonokai",
-		priority = 1000,
-		lazy = true, -- catppuccin es default; sonokai carga solo al :colorscheme sonokai
-		init = function()
-			vim.g.sonokai_style = "atlantis"
-			vim.g.sonokai_enable_italic = 1
-			vim.g.sonokai_transparent_background = 2 -- 2 = full (bg + floats)
-			vim.g.sonokai_dim_inactive_windows = 1
-			vim.g.sonokai_diagnostic_virtual_text = "grey"
-			vim.g.sonokai_current_word = "grey background" -- espacio, NO guión bajo
-			vim.g.sonokai_spell_foreground = "colored" -- spell check coloreado
-		end,
-	},
-
 	-- ─── nvim-web-devicons: colores Catppuccin oficiales ──────────────────────
 	{
 		"nvim-tree/nvim-web-devicons",
@@ -978,6 +686,6 @@ return {
 	-- ─── LazyVim: catppuccin como colorscheme default ───────────────────────────
 	{
 		"LazyVim/LazyVim",
-		opts = { colorscheme = "catppuccin" },
+		opts = { colorscheme = "sublime" },
 	},
 }

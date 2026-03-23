@@ -1,52 +1,77 @@
--- ─── Lualine: temas para variantes Kanagawa ──────────────────────────────────
+-- ─── Lualine: temas para variantes Kanagawa + Sublime ────────────────────────
 -- kanagawa-paper-ink/canvas → usa el tema nativo del plugin (no custom)
 -- gentleman-kanagawa-blur   → custom: texto blanco + mode bgs oscuros (WCAG AA)
+-- sublime                   → custom: sección a con bg sutil, b/c transparentes
 -- catppuccin y sonokai tienen sus propias integraciones — este archivo no interfiere.
 return {
 	"nvim-lualine/lualine.nvim",
 	opts = function(_, opts)
 		local cs = vim.g.colors_name or ""
 
-		-- kanagawa-paper: integración nativa — simplemente asignar el tema
-		if cs:find("kanagawa%-paper") then
+		-- sublime: modo con bg sutil en sección a, b/c transparentes
+		if cs:find("sublime") then
+			local bg_a = "#312f28"   -- sección a: pill warm visible (1.4:1 vs bg) — modo legible
+			local fg   = "#c2c2bf"   -- editor.foreground
+			local dim  = "#908c79"   -- section_c/inactive: olive cálido más legible (+lum)
+
+			local function sec(mode_fg)
+				return {
+					a = { fg = mode_fg, bg = bg_a, gui = "bold" },
+					b = { fg = fg,      bg = "NONE" },
+					c = { fg = dim,     bg = "NONE" },
+				}
+			end
+
 			opts.options = opts.options or {}
-			opts.options.theme = "kanagawa-paper"
+			opts.options.theme = {
+				normal   = sec("#66d9ef"),
+				insert   = sec("#a6e22e"),
+				visual   = sec("#e6db74"),
+				replace  = sec("#f92672"),
+				command  = sec("#fd971f"),
+				terminal = sec("#66d9ef"),
+				inactive = {
+					a = { fg = dim, bg = "NONE" },
+					b = { fg = dim, bg = "NONE" },
+					c = { fg = dim, bg = "NONE" },
+				},
+			}
+			opts.options.section_separators   = { left = "", right = "" }
+			opts.options.component_separators = { left = "│", right = "│" }
 			return
 		end
 
-		-- gentleman-kanagawa-blur: custom (el plugin no tiene integración nativa)
-		if not cs:find("gentleman") then return end
+		-- catppuccin: integración nativa via LazyVim/lualine (no custom needed)
+	end,
 
-		-- Bloques de modo con TEXTO BLANCO — WCAG AA en todos los modos:
-		--   NORMAL=ocean blue(5.5:1)  INSERT=forest green(5.6:1)
-		--   VISUAL=deep amber(4.9:1)  REPLACE=deep rose(8:1)
-		--   COMMAND=deep gold(5:1)    TERMINAL=deep teal(5.5:1)
-		local s0   = "#282F3E"   -- surface0: sección c/x (filename, extras)
-		local s1   = "#2E3748"   -- surface1: sección b/y (branch, filetype)
-		local fg   = "#F3F6F9"   -- texto modo: blanco — contraste uniforme todos los modos
-		local fd   = "#8394A3"   -- fg_dim: texto secundario (5.6:1)
-
-		local function sec(mode_bg)
-			return {
-				a = { fg = fg, bg = mode_bg, gui = "bold" },
-				b = { fg = fg,  bg = s1 },
-				c = { fg = fd,  bg = s0 },
-			}
+	-- config: parchea on_click en secciones existentes (no reemplaza) luego llama setup
+	-- Busca branch/diff/diagnostics en CUALQUIER sección donde LazyVim los haya puesto
+	config = function(_, opts)
+		local function add_click(comps, target, handler)
+			for i, comp in ipairs(comps or {}) do
+				local name = type(comp) == "string" and comp
+					or (type(comp) == "table" and type(comp[1]) == "string" and comp[1])
+					or nil
+				if name == target then
+					if type(comp) == "string" then
+						comps[i] = { comp, on_click = handler }
+					else
+						comp.on_click = comp.on_click or handler
+					end
+					break
+				end
+			end
 		end
 
-		opts.options = opts.options or {}
-		opts.options.theme = {
-			normal   = sec("#2D6585"),  -- ocean blue     — NORMAL
-			insert   = sec("#3A7048"),  -- forest green   — INSERT
-			visual   = sec("#8C5820"),  -- deep amber     — VISUAL/SELECT
-			replace  = sec("#7A2848"),  -- deep rose      — REPLACE
-			command  = sec("#7A6018"),  -- deep gold      — COMMAND
-			terminal = sec("#2B7070"),  -- deep teal      — TERMINAL
-			inactive = {
-				a = { fg = fd, bg = s0 },
-				b = { fg = fd, bg = s0 },
-				c = { fg = fd, bg = s0 },
-			},
-		}
+		local git_click  = function() pcall(function() require("snacks").picker.git_log() end) end
+		local diag_click = function() pcall(vim.cmd, "Trouble diagnostics toggle filter.buf=0") end
+		local diff_click = function() pcall(vim.cmd, "DiffviewOpen") end
+
+		for _, section in pairs(opts.sections or {}) do
+			add_click(section, "branch",      git_click)
+			add_click(section, "diff",        diff_click)
+			add_click(section, "diagnostics", diag_click)
+		end
+		require("lualine").setup(opts)
 	end,
 }

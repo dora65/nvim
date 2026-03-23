@@ -20,15 +20,13 @@
 --   * / #   → buscar palabra bajo cursor
 
 return {
-	-- ── 0. Searchbox.nvim: panel flotante Ctrl+F (tipo VS Code) ─────────────
-	-- <C-f> → MatchAll: resalta todos los matches mientras escribís
+	-- ── 0. Searchbox.nvim: reemplazado por snacks.picker.lines() en keymaps.lua ─
+	-- Mantenido como dependencia pero sin bindings propios.
+	-- <C-f> ahora usa snacks.picker.lines() con highlights persistentes + n/N post-jump.
 	{
 		"VonHeikemen/searchbox.nvim",
 		dependencies = { "MunifTanjim/nui.nvim" },
-		keys = {
-			-- Búsqueda: resalta todos los matches mientras escribís
-			{ "<C-f>", "<cmd>SearchBoxMatchAll clear_matches=true<cr>", mode = { "n", "v" }, desc = "Search in file" },
-		},
+		keys = {},
 		opts = {
 			default_value = "",
 			enable_cmdline_keymaps = false,
@@ -67,24 +65,66 @@ return {
 
 	-- ── 0b. Grug FAR: replace avanzado ───────────────────────────────────────
 	-- <leader>sr  → reemplazar en TODO el proyecto (LazyVim default)
-	-- <leader>sR  → reemplazar SOLO en el archivo actual (modo enfocado)
-	-- Soporta regex, flags ripgrep, preview visual con diff, undo seguro
+	-- <leader>sR  → reemplazar en archivo actual (pre-rellena palabra bajo cursor)
+	-- visual + <leader>sR → reemplazar selección en archivo actual
+	-- <leader>sw  → reemplazar palabra bajo cursor en TODO el proyecto
+	-- Dentro del panel: <CR>=aplicar, q=cerrar, <C-r>=refrescar, <C-q>=qflist
 	{
 		"MagicDuck/grug-far.nvim",
 		opts = {
 			headerMaxWidth = 80,
-			-- Abrir en vsplit (como VSCode): no ocupa toda la pantalla
 			windowCreationCommand = "vsplit",
+			-- Keymaps dentro del panel (intuitivos)
+			keymaps = {
+				replace = { n = "<CR>" }, -- Enter = aplicar reemplazos
+				close = { n = "q" }, -- q = cerrar (como vim buffer)
+				refresh = { n = "<C-r>" }, -- refrescar resultados
+				qflist = { n = "<C-q>" }, -- mandar resultados a quickfix
+				syncLocations = { n = "<C-s>" }, -- sync todos los archivos
+				openLocation = { n = "o" }, -- abrir ubicación bajo cursor
+				abort = { n = "<C-c>" }, -- cancelar búsqueda en curso
+				historyOpen = { n = "<C-h>" }, -- historial de búsquedas
+				toggleShowCommand = { n = "<C-p>" }, -- ver comando ripgrep generado
+			},
+			-- Spinner visual mientras ripgrep busca
+			spinnerStates = { "⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷" },
 		},
 		keys = {
-			-- <leader>sR: grug-far restringido al archivo actual
+			-- Normal: pre-rellena la palabra bajo cursor + restringe al archivo
 			{
 				"<leader>sR",
 				function()
-					local grug = require("grug-far")
-					grug.open({ prefills = { paths = vim.fn.expand("%") } })
+					require("grug-far").open({
+						prefills = {
+							search = vim.fn.expand("<cword>"),
+							paths = vim.fn.expand("%"),
+						},
+					})
 				end,
-				desc = "Replace in current file (Grug Far)",
+				mode = "n",
+				desc = "Replace word under cursor (current file)",
+			},
+			-- Visual: pre-rellena la selección + restringe al archivo
+			{
+				"<leader>sR",
+				function()
+					require("grug-far").open({
+						prefills = { paths = vim.fn.expand("%") },
+					})
+				end,
+				mode = "v",
+				desc = "Replace selection (current file)",
+			},
+			-- Bonus: reemplazar palabra bajo cursor en TODO el proyecto
+			{
+				"<leader>sw",
+				function()
+					require("grug-far").open({
+						prefills = { search = vim.fn.expand("<cword>") },
+					})
+				end,
+				mode = "n",
+				desc = "Replace word under cursor (project)",
 			},
 		},
 	},

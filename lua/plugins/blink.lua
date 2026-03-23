@@ -7,7 +7,8 @@ return {
     },
     completion = {
       menu = {
-        border = "single",
+        border = "rounded",
+        winblend = 10,
         draw = {
           columns = {
             { "label", "label_description", gap = 1 },
@@ -18,7 +19,7 @@ return {
       documentation = {
         auto_show = true,
         auto_show_delay_ms = 200,
-        window = { border = "rounded" },
+        window = { border = "rounded", winblend = 10 },
       },
       ghost_text = { enabled = true },
     },
