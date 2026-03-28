@@ -59,6 +59,21 @@ return {
 				group = vim.api.nvim_create_augroup("RenderMarkdownColors", { clear = true }),
 				callback = function() vim.schedule(apply_rm_hl) end,
 			})
+			-- Markdown: Activar foldcolumn local al buffer y sincronizar FoldColumn hl
+			-- foldcolumn global (ufo.lua) = "1"; aquí lo forzamos también a nivel FileType
+			-- para garantizar que el marcador > / v aparezca en archivos markdown.
+			vim.api.nvim_create_autocmd("FileType", {
+				group = vim.api.nvim_create_augroup("MarkdownFolds", { clear = true }),
+				pattern = "markdown",
+				callback = function()
+					vim.opt_local.foldcolumn = "1"      -- Marcadores de colapsado visible
+					vim.opt_local.conceallevel = 2       -- render-markdown activo en Normal
+					vim.opt_local.concealcursor = "nc"   -- Muestra raw solo en Insert
+					-- FoldColumn: Color del margen > / v debe coordinar con el puente neutro
+					vim.api.nvim_set_hl(0, "FoldColumn", { fg = "#444541", bg = "NONE" })
+					vim.api.nvim_set_hl(0, "Folded",     { fg = "#75715e", bg = "#242523", italic = true })
+				end,
+			})
 		end,
 		opts = {
 			-- Activo por defecto: el archivo abre en Rendered (estado 3)
@@ -72,14 +87,14 @@ return {
 			render_modes = { "n", "c" },
 			-- Ocultar errores de treesitter en notificaciones (ya logueados en :messages)
 			log_level = vim.log.levels.ERROR,
-			-- CRITICO: sin esto, la linea bajo el cursor siempre muestra markdown crudo
-			-- aunque concealcursor="ncv" este activo. anti_conceal es independiente de vim.
-			-- Con false: el modo Rendered renderiza TODO incluyendo la linea del cursor.
-			-- En Hybrid el comportamiento de cursor crudo lo controla concealcursor="" de vim.
-			anti_conceal = { enabled = false },
+			-- anti_conceal removido: en v6+ la visibilidad del cursor se gestiona
+			-- automáticamente mediante el estado de `render_modes` y el motor central.
 			heading = {
 				enabled = true,
-				sign = false,      -- sin iconos en signcolumn (quita "líneas de color" izquierda)
+				-- CRITICO: Activar marcadores laterales en la columna de signos
+				-- Esto muestra indicadores `>` junto a los H1-H6 en el signcolumn como
+				-- indicadores visuales de jerarquía estructural.
+				sign = { enabled = true, icon = "󰅂 " }, 
 				style = "icon",    -- icono + texto sin background full-width (más elegante)
 				icons = { "󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 " },
 				left_pad = 0,
@@ -100,7 +115,7 @@ return {
 			},
 			code = {
 				enabled = true,
-				sign = false,
+				sign = { enabled = false }, -- Modernizado
 				style = "full",
 				border = "thin",
 				width = "block",  -- ajusta al contenido (no full-width del terminal)
@@ -236,16 +251,18 @@ return {
 	},
 
 	-- ─── 2. Preview en navegador ──────────────────────────────────────────────
-	-- Reemplaza iamcco/markdown-preview.nvim (abandonado 2022, roto con Node.js v20+)
+	-- Reemplaza iamcco/markdown-preview.nvim (abandonado, roto con Node.js v20+)
 	-- live-preview.nvim: pure Lua, zero dependencias externas, funciona nativamente en Windows
 	-- Tip: Ctrl+P en el navegador → "Guardar como PDF" = PDF inmediato sin xelatex
 	{
 		"brianhuster/live-preview.nvim",
 		cmd = { "LivePreview" },
-		ft = { "markdown" },
+		-- Usa github-markdown.min.css nativo (probado). vim.ui.open falla en Windows
+		-- → pwsh Start-Process es el opener confiable
 		opts = {
+			address = "127.0.0.1",
 			port = 5500,
-			browser = "default", -- usa el navegador por defecto del sistema
+			browser = "pwsh.exe -NoProfile -Command Start-Process",
 			sync_scroll = true,
 			picker = "snacks.picker",
 		},

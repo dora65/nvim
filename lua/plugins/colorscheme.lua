@@ -1,4 +1,4 @@
-return {
+﻿return {
 	-- ─── Catppuccin Mocha — tema premium unificado con Windows Terminal ─────────
 	{
 		"catppuccin/nvim",
@@ -20,6 +20,23 @@ return {
 				enabled = true,
 				shade = "dark",
 				percentage = 0.30,
+			},
+
+			-- Puente Térmico Neutro (Oro Puro):
+			-- Catppuccin Mocha tiene un base frío (azul/violeta). Sublime tiene un base cálido (oliva oscuro).
+			-- Al flotar un menú Catppuccin sobre Sublime, el choque térmico (frío sobre cálido) crea
+			-- disonancia visual agotadora o color "sucio" (muddy).
+			-- Solución: Matemáticamente derivamos superficies grises ACROMÁTICAS (neutras perfectas) 
+			-- para que el cromo de la UI sea un marco limpio que no compite con el código cálido.
+			-- crust/mantle/surfacex actúan ahora como cristal polarizado neutro (#1a1a1c).
+			color_overrides = {
+				mocha = {
+					crust    = "#111112",
+					mantle   = "#1a1a1c",
+					surface0 = "#242523",
+					surface1 = "#343532",
+					surface2 = "#444541",
+				},
 			},
 
 			styles = {
@@ -44,11 +61,28 @@ return {
 						Normal = { bg = t },
 						NormalNC = { bg = colors.mantle, fg = colors.overlay0 },
 						NormalFloat = { bg = colors.mantle, fg = colors.text },
-						FloatBorder = { fg = colors.surface2, bg = colors.mantle },
+						FloatBorder = { fg = colors.surface2, bg = colors.mantle }, -- Border invisible en winblend
 						FloatTitle = { fg = colors.mauve, bg = colors.mantle, bold = true },
 
+						-- ── Corrección de Consistencia: Someter Plugins a Mantle (#1a1a1c) ─
+						-- Éstos plugins ignoran NormalFloat y usan sus propios fondos (rompiendo el Fit).
+						-- Snacks (FZF/Picker):
+						SnacksPickerNormal = { bg = colors.mantle, fg = colors.text },
+						SnacksPickerBorder = { fg = colors.surface2, bg = colors.mantle },
+						SnacksPickerTitle  = { fg = colors.mauve, bg = colors.mantle, bold = true },
+						-- Noice (Cmdline/Popups):
+						NoiceCmdlinePopup       = { bg = colors.mantle, fg = colors.text },
+						NoiceCmdlinePopupBorder = { fg = colors.surface2, bg = colors.mantle },
+						NoiceCmdlinePopupTitle  = { fg = colors.mauve, bg = colors.mantle, bold = true },
+						NoiceMini               = { bg = colors.mantle },
+						-- Lazygit / Mason / Lazy:
+						LazyNormal  = { bg = colors.mantle },
+						MasonNormal = { bg = colors.mantle },
+						TelescopeNormal = { bg = colors.mantle },
+						TelescopeBorder = { fg = colors.surface2, bg = colors.mantle },
+
 						-- ── Cursor line: sutil sobre transparencia ──────────────────────
-						CursorLine = { bg = colors.surface0 },
+						CursorLine   = { bg = "#2d2e2a" },   -- warm Sublime +4% L*
 						CursorLineNr = { fg = colors.lavender, bold = true },
 						-- overlay0 (#6c7086) = 4.1:1 contraste vs crust: legible sin competir con código
 						-- surface1 (#45475a) = ~2.5:1 → insuficiente (principio fg_dim de Kanagawa)
@@ -59,14 +93,16 @@ return {
 						PmenuSel = { bg = "#3a2d52", fg = colors.text, bold = true },  -- mauve-tinted (Kanagawa accent principle)
 						PmenuThumb = { bg = colors.surface1 },
 
-						-- ── Neo-tree: full transparent, integrado con terminal ──────────
+						-- ── Neo-tree: Principios Kanagawa (Luminance Hierarchy) ─────────────────
+						-- Kanagawa: bg oscuro, hover=surface1 (nota: en transparent mode bg=NONE)
+						-- Principio: el item activo/hoveredsiempre tiene acento LUMINOSO y VISIBLE
 						NeoTreeNormal = { bg = t, fg = colors.text },
 						NeoTreeNormalNC = { bg = t, fg = colors.subtext0 },
 						NeoTreeWinSeparator = { fg = colors.mantle, bg = t },
 						NeoTreeEndOfBuffer = { bg = t, fg = t },
-						-- surface1 #45475a = apenas visible sobre terminal bg #1e1e2e (2.8:1)
-					-- surface2 #585b70 = claramente visible (4.2:1) — mismo principio que PmenuSel
-					NeoTreeCursorLine = { bg = colors.overlay0 },  -- overlay0 #6c7086 = 4.1:1 contraste real
+						-- Hover/cursor: surface0 exactamente (Kanagawa rosewater no sirve; surface0 subtle = 4.2:1)
+						-- ANTES: overlay0 era demasiado claro para un bg transparent → parecia un borde
+						NeoTreeCursorLine = { bg = colors.surface0, bold = false },
 						NeoTreeDimText = { fg = colors.overlay0 },
 						NeoTreeIndentMarker = { fg = colors.surface1 },
 						NeoTreeGitAdded = { fg = colors.green },
@@ -77,8 +113,10 @@ return {
 						NeoTreeDirectoryName = { fg = colors.lavender },
 						NeoTreeRootName = { fg = colors.mauve, bold = true, italic = true },
 						NeoTreeFileName = { fg = colors.text },
-						-- Archivo activo: brilla en mauve para indicar que esta abierto
-						NeoTreeFileNameOpened = { fg = colors.mauve, bold = true },
+						-- Archivo activo ABIERTO: brilla en amarillo cálido Sublime (como VSCode)
+						-- Principio Kanagawa: el item activo usa el accent más brillante disponible
+						-- #e6db74 = yellow Sublime ST3 — warm, distinguible pero no agresivo
+						NeoTreeFileNameOpened = { fg = "#e6db74", bold = true },
 						-- Highlights faltantes (usados en git_status component de neo-tree.lua)
 						NeoTreeGitStaged   = { fg = colors.green,  bold = true },
 						NeoTreeGitConflict = { fg = colors.red,    bold = true },
@@ -123,31 +161,41 @@ return {
 						ClaudeCodeBorder = { fg = colors.surface2, bg = colors.mantle },
 						ClaudeCodeTitle = { fg = colors.mauve, bg = colors.mantle, bold = true },
 
-						-- ── Terminal integrado ──────────────────────────────────────────
+						-- ── Terminal integrado (ToggleTerm) ────────────────────────────
+						-- shade_terminals=false en terminal.lua → NormalFloat controla el bg
+						-- Sin este override: el terminal queda negro puro (ANSI black 0 de WezTerm)
+						ToggleTermNormal = { bg = colors.mantle },
 						ToggleTermBorder = { fg = colors.surface2, bg = colors.mantle },
 
-						-- ── Noice ───────────────────────────────────────────────────────
+						-- ── Noice ──────────────────────────────────────────────
+						NoiceCmdlinePopup       = { bg = colors.mantle, fg = colors.text },
 						NoiceCmdlinePopupBorder = { fg = colors.surface2, bg = colors.mantle },
-						NoiceCmdlineIcon = { fg = colors.mauve },
+						NoiceCmdlinePopupTitle  = { fg = colors.mauve, bg = colors.mantle, bold = true },
+						NoiceCmdlineIcon        = { fg = colors.mauve },
+						NoiceMini               = { bg = colors.mantle },
 
 						-- ── Telescope/Picker: full transparent ──────────────────────────
-						TelescopeNormal = { bg = t },
-						TelescopeBorder = { fg = colors.surface1, bg = t },
-						TelescopePromptNormal = { bg = t },
-						TelescopePromptBorder = { fg = colors.mauve, bg = t },
-						TelescopePromptTitle = { fg = colors.mauve, bg = t, bold = true },
-						TelescopeResultsNormal = { bg = t },
-						TelescopeResultsBorder = { fg = colors.surface1, bg = t },
-						TelescopePreviewNormal = { bg = t },
-						TelescopePreviewBorder = { fg = colors.surface1, bg = t },
+						TelescopeNormal = { bg = colors.mantle },
+						TelescopeBorder = { fg = colors.surface2, bg = colors.mantle },
+						TelescopePromptNormal = { bg = colors.mantle },
+						TelescopePromptBorder = { fg = colors.mauve, bg = colors.mantle },
+						TelescopePromptTitle = { fg = colors.mauve, bg = colors.mantle, bold = true },
+						TelescopeResultsNormal = { bg = colors.mantle },
+						TelescopeResultsBorder = { fg = colors.surface2, bg = colors.mantle },
+						TelescopePreviewNormal = { bg = colors.mantle },
+						TelescopePreviewBorder = { fg = colors.surface2, bg = colors.mantle },
 						TelescopeSelection = { bg = colors.surface0, fg = colors.text },
 
 						-- ── Snacks picker ───────────────────────────────────────────────
-						SnacksPickerBorder = { fg = colors.surface2, bg = t },
+						SnacksPickerBorder  = { fg = colors.surface2, bg = colors.mantle },
+						SnacksPickerNormal  = { bg = colors.mantle, fg = colors.text },
+						SnacksPickerTitle   = { fg = colors.mauve, bg = colors.mantle, bold = true },
 
 						-- ── Indent guides: muy discretos ────────────────────────────────
-						MiniIndentscopeSymbol = { fg = colors.surface1 },
-						IndentBlanklineChar = { fg = colors.surface0 },
+						MiniIndentscopeSymbol    = { fg = "#2e2f2b" },
+						IndentBlanklineChar      = { fg = "#252622" },
+							IblIndent                = { fg = "#252622" },
+							IblScope                 = { fg = "#2e2f2b" },
 
 						-- ── Visual selection: dark mauve blend — consistente con WezTerm selection_bg ──
 						-- #394361 = blend(blue #89b4fa, base #1e1e2e, 25%) — H=222° azul puro, no rosado, 6.4:1 WCAG AA

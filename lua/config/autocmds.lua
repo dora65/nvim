@@ -2205,14 +2205,18 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 })
 -- ─── ShaDa: limpieza preventiva de archivos tmp (Windows bug) ──────────────────────────
 -- En Windows, crashes dejan main.shada.tmp.X huérfanos → E138 al salir.
--- Fix: eliminar en VimEnter. Solo borra los de la sesión ACTUAL no corriendo.
+-- Fix: eliminar en VimEnter solo los de más de 1 hora (evita borrar los de otra sesión activa).
 vim.api.nvim_create_autocmd("VimEnter", {
+	group = vim.api.nvim_create_augroup("shada_cleanup", { clear = true }),
 	once = true,
 	callback = function()
-		local dir = vim.fn.stdpath("data") .. "/shada"
-		local files = vim.fn.glob(dir .. "/main.shada.tmp.*", false, true)
+		local shada_dir = vim.fn.stdpath("data") .. "/shada"
+		local files = vim.fn.glob(shada_dir .. "/main.shada.tmp.*", false, true)
 		for _, f in ipairs(files) do
-			vim.fn.delete(f)
+			local age = os.time() - vim.fn.getftime(f)
+			if age > 3600 then -- older than 1 hour → huérfano seguro
+				os.remove(f)
+			end
 		end
 	end,
 })

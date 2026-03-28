@@ -10,9 +10,9 @@ return {
 		dependencies = { "kevinhwang91/promise-async" },
 		event = "BufReadPre",
 		init = function()
-			-- foldcolumn=0: sin columna numérica lateral (ahorra espacio)
-			-- La info de folds se muestra en virt-text al final de línea (▸ N)
-			vim.opt.foldcolumn    = "0"
+			-- foldcolumn=1: activa 1 columna numérica lateral mínima para marcadores visuales (v / >)
+			-- Recupera la UX táctil de colapso visual sin robar excesivo espacio.
+			vim.opt.foldcolumn    = "1"
 			vim.opt.foldlevel     = 99
 			vim.opt.foldlevelstart = 99
 			vim.opt.foldenable    = true
@@ -20,7 +20,13 @@ return {
 		opts = {
 			-- Provider chain por filetype: LSP primero (semántico), luego Treesitter, indent último
 			-- lua_ls (lsp-setup.lua) ya provee folds semánticos para Lua desde el arranque
-			provider_selector = function(_, filetype, _)
+			provider_selector = function(bufnr, filetype, buftype)
+				-- CRITICO: Evitar que UFO intente decorar buffers efímeros que mutan rápido
+				-- (ej. snacks_notifier, cmp, neo-tree). Esto previene el crash de index out of bounds
+				-- cuando snacks win redraw muta el buffer más rápido de lo que ufo recalcula folds.
+				if buftype == "nofile" or buftype == "terminal" or buftype == "prompt" then
+					return ""
+				end
 				local ft_map = {
 					lua        = { "lsp", "treesitter" },
 					python     = { "lsp", "treesitter" },
@@ -28,41 +34,15 @@ return {
 					typescript = { "lsp", "treesitter" },
 					javascript = { "lsp", "treesitter" },
 					json       = { "treesitter" },           -- jsonls folds suelen ser lentos
-					markdown   = { "treesitter", "indent" },  -- pcall monkey-patch en markdown.lua previene la race condition
+					markdown   = { "treesitter", "indent" },  -- pcall monkey-patch previene race cond
 					yaml       = { "indent" },               -- Treesitter YAML fold es inestable
 				}
 				return ft_map[filetype] or { "treesitter", "indent" }
 			end,
 
-			-- Virtual text handler: muestra conteo + primer token del bloque colapsado
-			-- Color del suffix: "Comment" group → olive #75715e en Sublime, overlay1 en Catppuccin
-			-- Esto coordina con el estilo de comentarios de cada tema sin hardcodear colores
-			fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
-				local newVirtText = {}
-				local suffix = ("  ▸ %d"):format(endLnum - lnum)
-				local sufWidth = vim.fn.strdisplaywidth(suffix)
-				local targetWidth = width - sufWidth
-				local curWidth = 0
-				for _, chunk in ipairs(virtText) do
-					local chunkText = chunk[1]
-					local chunkWidth = vim.fn.strdisplaywidth(chunkText)
-					if targetWidth > curWidth + chunkWidth then
-						table.insert(newVirtText, chunk)
-					else
-						chunkText = truncate(chunkText, targetWidth - curWidth)
-						local hlGroup = chunk[2]
-						table.insert(newVirtText, { chunkText, hlGroup })
-						chunkWidth = vim.fn.strdisplaywidth(chunkText)
-						if curWidth + chunkWidth < targetWidth then
-							suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
-						end
-						break
-					end
-					curWidth = curWidth + chunkWidth
-				end
-				table.insert(newVirtText, { suffix, "Comment" })
-				return newVirtText
-			end,
+			-- NOTA: Se eliminó fold_virt_text_handler custom porque truncaba los títulos
+			-- de las secciones markdown. UFO usará su comportamiento por defecto,
+			-- o bien el motor nativo de Neovim 0.10.
 
 			-- Preview float: bordes redondeados — coordina con vim.o.winborder = "rounded"
 			preview = {

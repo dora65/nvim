@@ -3,6 +3,7 @@ return {
 
 	{
 		"b0o/incline.nvim",
+		enabled = false, -- Deshabilitado: Lualine e iconos de cursor absorben el mode, WinBar el breadcrumb.
 		event = "BufReadPre",
 		priority = 1200,
 		config = function()

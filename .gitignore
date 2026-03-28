@@ -13,6 +13,9 @@ spell/
 # Claude Code project settings (user-specific)
 .claude/
 
+# Agent Teams Lite registry (auto-generated)
+.atl/
+
 # OS artifacts
 Thumbs.db
 desktop.ini

@@ -28,33 +28,28 @@ return {
 
 				-- Segmentos en orden izquierda→derecha:
 				segments = {
-					-- 1. Signos diagnósticos (LSP errors/warnings) — carril propio
-					--    Sin esto, los signos de git los sobreescriben cuando ambos existen
+					-- 0. Fold markers: VSCode-style › / ⌄ via fillchars + ufo
+					-- builtin.foldfunc renders the fold open/close states using fillchars chars
+					-- NOTA: NO usar condition aquí — causa crash en ufo decorator (index out of bounds)
+					{
+						text  = { builtin.foldfunc, " " },
+						click = "v:lua.ScFa",
+					},
+					-- 1. Signos unificados: Diagnostics y Gitsigns comparten LA MISMA columna.
+					--    Máxima densidad (1 char): Si hay error y git change, Nvim usa el icono del error
+					--    (mayor prioridad) y el color de fondo del git change. Oro puro espacial.
 					{
 						sign = {
-							namespace = { "diagnostic" },
 							maxwidth  = 1,
 							colwidth  = 1,
 							auto      = false,
 						},
 						click = "v:lua.ScSa",
 					},
-					-- 3. Número de línea: relativo en otras, absoluto en línea actual
-					--    builtin.lnumfunc ya maneja relative+absolute automáticamente
+					-- 2. Número de línea: relativo en otras, absoluto en línea actual
 					{
 						text  = { builtin.lnumfunc, " " },
 						click = "v:lua.ScLa",
-					},
-					-- 4. Git signs (gitsigns via LazyVim) — carril propio al final
-					--    Sin competir con diagnostics: ver AMBOS simultáneamente
-					{
-						sign = {
-							namespace = { "gitsigns" },
-							maxwidth  = 1,
-							colwidth  = 1,
-							auto      = false,
-						},
-						click = "v:lua.ScSa",
 					},
 				},
 			})

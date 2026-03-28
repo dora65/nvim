@@ -70,22 +70,18 @@ return {
 			-- Sweet spot fluido y elegante: baja stiffness = cola larga, natural (ink drop)
 			-- FLUIDEZ: stiffness alto = cola corta/responsiva. trailing bajo = cola elegante.
 			-- damping alto = sin oscilación al parar. distance alto = parada limpia (sin micro-flicker).
-			stiffness = 0.50,                    -- era 0.40: más responsivo en saltos normales
-			trailing_stiffness = 0.25,           -- era 0.18: cola más corta y limpia
-			stiffness_insert_mode = 0.52,        -- era 0.48
-			trailing_stiffness_insert_mode = 0.28, -- era 0.25
-			damping = 0.72,                      -- era 0.65: más amortiguado = sin rebotar
-			damping_insert_mode = 0.82,          -- era 0.75: inserción muy estable
-			-- ANTI-FLICKER: distance_stop_animating alto = terminar limpio antes del micro-parpadeo
-			-- 0.5 (antes) = corre cientos de micro-frames cerca del target = parpadeo visible
-			-- 1.5 = para decididamente al acercarse = elimina el flicker de final de animación
+			stiffness = 0.60,                    -- Mercurio líquido: alta presteza de arranque (instantáneo)
+			trailing_stiffness = 0.30,           -- Cola controlada
+			stiffness_insert_mode = 0.65,
+			trailing_stiffness_insert_mode = 0.35,
+			damping = 0.85,                      -- Fuerte amortiguación = movimiento robusto sin rebote/flicker
+			damping_insert_mode = 0.88,
 			distance_stop_animating = 1.5,
-			hide_target_hack = false,            -- era true: causaba flash al ocultar/mostrar cursor
+			hide_target_hack = false,
 			smear_between_neighbor_lines = true,
 			legacy_computing_symbols_support = false,
-			-- 8ms = 125fps: balance óptimo fluidez/estabilidad en WezTerm WebGPU
-			-- 4ms (250fps) era demasiado agresivo → competía con render loop → parpadeo
-			time_interval = 8,
+			-- 4ms = 250fps: Render ultra fluido, respaldado por WezTerm WebGPU 240fps
+			time_interval = 4,
 			cursor_color = "#66d9ef",  -- sync con Cursor hl sublime: cyan monokai ST3
 			transparent_bg_fallback_color = "#11111b", -- Evita la sombra gris sobre el fondo
 		},
@@ -157,22 +153,19 @@ return {
 				cursor = { enable = false }, -- delegado a smear-cursor
 				resize = {
 					enable = true,
-					-- 60ms quartic ease-out: deceleration premium (4ª potencia = arranque muy rápido,
-					-- final muy suave). Mini.animate actualiza el target en cada keypress
-					-- → key-repeat funciona aunque la animación dure más que el intervalo (~30ms).
-					timing = animate.gen_timing.quartic({ duration = 60, unit = "total" }),
+					-- 40ms cubic: arranque explosivo, deceleración en el último 10%. Responsividad pura.
+					timing = animate.gen_timing.cubic({ duration = 40, unit = "total" }),
 				},
-				-- open: cubic deceleration — ease-out: rápido al inicio, suave al final
-				-- cubic vs linear: perceptualmente más premium (≈ CSS ease-out cubic-bezier)
+				-- open: cubic deceleration — 80ms es el estándar matemático de "animación percibida pero instantánea"
 				open = {
 					enable = true,
-					timing   = animate.gen_timing.quartic({ duration = 180, unit = "total" }),
+					timing   = animate.gen_timing.cubic({ duration = 80, unit = "total" }),
 					winconfig = float_winconfig,
 				},
-				-- close: cubic + más corto (cerrar siempre más rápido que abrir = fluidez)
+				-- close: cubic 40ms — desaparecer debe ser el doble de rápido que aparecer
 				close = {
 					enable = true,
-					timing   = animate.gen_timing.quartic({ duration = 110, unit = "total" }),
+					timing   = animate.gen_timing.cubic({ duration = 40, unit = "total" }),
 					winconfig = float_winconfig,
 				},
 			}

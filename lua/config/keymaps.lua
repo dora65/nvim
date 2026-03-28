@@ -917,7 +917,7 @@ vim.keymap.set("n", "<leader>cc", function()
 	p.pick(nil, {
 		title = title,
 		items = items,
-		format = function(item, _ctx)
+		format = function(item, _)
 			local hl = cat_hl[item.cat] or "Comment"
 			return {
 				{ item.icon, hl = hl },
@@ -957,6 +957,39 @@ vim.keymap.set("n", "<leader>cc", function()
 		layout = { preset = "dropdown", preview = false },
 	})
 end, { desc = "Command Center  [<leader>cc]" })
+
+----- ENGRAM: memoria persistente + dashboard neural -----
+-- <leader>eg → lanza serve.py (maneja duplicados, puerto y browser internamente)
+vim.keymap.set("n", "<leader>eg", function()
+	local python = "C:/Python313/python.exe"
+	local script = vim.fn.expand("~/Documents/Obsidian/JaedenNotes/serve.py")
+	vim.fn.jobstart({ python, script }, {
+		detach = true,
+		cwd = vim.fn.expand("~/Documents/Obsidian/JaedenNotes"),
+	})
+	vim.notify("Engram dashboard starting...", vim.log.levels.INFO)
+end, { desc = "Engram: dashboard" })
+
+-- <leader>es → búsqueda engram en terminal flotante
+vim.keymap.set("n", "<leader>es", function()
+	local ok, sn = pcall(require, "snacks")
+	if not ok then return end
+	vim.ui.input({ prompt = "Engram search: " }, function(query)
+		if not query or query == "" then return end
+		sn.terminal({ "engram", "search", query }, {
+			win = { position = "float", height = 0.5, width = 0.7, title = " Engram Search " },
+		})
+	end)
+end, { desc = "Engram: buscar en memoria  [es]" })
+
+-- <leader>ec → contexto reciente de engram en terminal flotante
+vim.keymap.set("n", "<leader>ec", function()
+	local ok, sn = pcall(require, "snacks")
+	if not ok then return end
+	sn.terminal({ "engram", "context" }, {
+		win = { position = "float", height = 0.5, width = 0.7, title = " Engram Context " },
+	})
+end, { desc = "Engram: ver contexto reciente  [ec]" })
 
 ----- SALIDA CONFIRMADA -----
 -- <leader>qq: pide confirmacion antes de cerrar todo nvim

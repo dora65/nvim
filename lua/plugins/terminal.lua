@@ -19,7 +19,7 @@ return {
       -- <C-\> reservado para Claude Code, toggleterm usa <leader>t*
       open_mapping = false,
       hide_numbers = true,
-      shade_terminals = true,
+      shade_terminals = false,  -- false: deja que winblend+NormalFloat controlen el bg
       start_in_insert = true,
       insert_mappings = true,
       terminal_mappings = true,
@@ -35,11 +35,10 @@ return {
         height = function()
           return math.floor(vim.o.lines * 0.85)
         end,
-        -- winblend omitido: mini.animate lo gestiona (open: 80→0, close: 0→80)
-        -- Con winblend=0 explícito aquí se sobreescribe el estado inicial de la animación
+        winblend = 10,  -- Cristal ahumado: igual que todos los otros flotantes
         highlights = {
-          border = "FloatBorder",
-          background = "NormalFloat",
+          border = "FloatBorder",      -- Coordina con colorscheme.lua: surface2 sobre mantle
+          background = "NormalFloat",  -- Coordina con colorscheme.lua: mantle #1a1a1c
         },
       },
     },

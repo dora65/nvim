@@ -1,6 +1,7 @@
 return {
-  -- Noice: filtrar ECONNRESET (socket TCP que cierra Claude CLI al hacer /exit)
-  -- Usar routes en vez de wrappear vim.notify — evita el warning "overwritten by another plugin"
+  -- ─── Noice: Consistency y Styling Total ──────────────────────────────────
+  -- Noice ignora NormalFloat por defecto. Cada "view" tiene su propio bg/border.
+  -- Hay que especificar los views EXPLICITAMENTE para someterlos al puente acromático.
   {
     "folke/noice.nvim",
     opts = {
@@ -9,6 +10,56 @@ return {
           filter = { event = "notify", find = "ECONNRESET" },
           opts   = { skip = true },
         },
+        -- Silenciar deprecation harmless de dap.ext.vscode
+        {
+          filter = { event = "notify", find = "deprecated" },
+          opts   = { skip = true },
+        },
+      },
+      -- Views: Ajuste quirúrgico de cada tipo de flotante
+      views = {
+        cmdline_popup = {
+          -- Posición: centrado alto (más ergonómico que bottom)
+          position = { row = "30%", col = "50%" },
+          size = { width = "auto", height = "auto" },
+          border = {
+            style = "rounded",
+            padding = { 0, 1 },
+          },
+          -- Usar los highlights que inyectamos en colorscheme.lua
+          win_options = {
+            winhighlight = "Normal:NoiceCmdlinePopup,FloatBorder:NoiceCmdlinePopupBorder",
+            winblend = 10,
+          },
+        },
+        mini = {
+          -- Notificaciones mini abajo a la derecha: sin borde, fondo mantle, fade temporal
+          position = { row = -2, col = "100%" },
+          size = { width = "auto", height = "auto" },
+          border = { style = "none" },
+          win_options = {
+            winhighlight = "Normal:NoiceMini",
+            winblend = 15,
+          },
+        },
+      },
+      -- Cmdline: Iconos visibles y elegantes (Sublime/Catppuccin style)
+      cmdline = {
+        format = {
+          cmdline     = { icon = " " },   -- terminal icon
+          search_down = { icon = " ⌄" },  -- search down
+          search_up   = { icon = " ⌃" },  -- search up
+          filter      = { icon = " " },   -- filter/bash
+          lua         = { icon = "󰢱 " },   -- lua moon/logo
+          help        = { icon = "󰋖 " },   -- help question
+        },
+      },
+      -- CRITICO: Desactivar el popupmenu de Noice (nui backend).
+      -- Si Noice mantiene control del popupmenu, blink.cmp no puede inyectar
+      -- su propia UI ni sus keymaps — el usuario queda atrapado en el wildmenu.
+      -- Con enabled=false: blink.cmp.cmdline source provee la lista con flechas.
+      popupmenu = {
+        enabled = false,   -- blink.cmp toma el control total del cmdline popup
       },
     },
   },
