@@ -49,9 +49,7 @@ return {
       { "<leader>u", group = "UI Toggle" },
       { "<leader>d", group = "Debug" },
       { "<leader>y", group = "Yank/Copy" },
-      { "<leader>a", icon = "󰚩", desc = "Claude Code" },
       { "<leader>t", group = "Terminal" },
-      { "<leader>D", icon = "", desc = "Database" },
     })
 
     wk.setup(opts)

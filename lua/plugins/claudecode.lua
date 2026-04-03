@@ -71,7 +71,7 @@ return {
 		},
 		opts = {
 			terminal_cmd = "claude",
-			auto_start = true,
+			auto_start = false,   -- inicia solo cuando se invoca (<C-q> / <leader>aa)
 			git_repo_cwd = true,
 
 			terminal = {
@@ -113,36 +113,19 @@ return {
 			},
 
 			diff_opts = {
-				auto_close_on_accept = true,  -- cierra diff al aceptar (flujo limpio)
-				vertical_split = true,        -- diff lado a lado (más legible)
-				open_in_current_tab = true,   -- en tab actual, no nueva
-				show_diff_stats = true,       -- muestra +N/-N en el header del diff
+				layout = "vertical",
+				open_in_new_tab = true,
+				keep_terminal_focus = true,
+				on_new_file_reject = "close_window",
 			},
 
-			-- track_selection: contexto visual en tiempo real enviado a Claude
-			-- visual_demotion_delay_ms: tiempo antes de degradar selección (50ms = default)
-			-- focus_after_send: false = cursor permanece en editor al enviar selección
-			track_selection = true,
-			visual_demotion_delay_ms = 50,
+			-- track_selection: false = no enviar buffer activo automaticamente (ahorro tokens)
+			-- Para enviar contexto: seleccionar texto + <leader>as (ClaudeCodeSend)
+			track_selection = false,
 			focus_after_send = false,
+			connection_wait_delay = 300,  -- ms antes de flush @ mentions (default 600, reducido para respuesta rapida)
 
 			log_level = "warn",       -- warn (vs info) = sin ruido por cada operación menor
-
-			-- MCP Servers: extienden las capacidades de Claude con herramientas reales.
-			-- GitHub MCP: se activa solo si GITHUB_TOKEN esta en el entorno shell.
-			-- Setup (una sola vez en PowerShell profile):
-			--   $env:GITHUB_TOKEN = "ghp_xxxxxxxxxxxxxxxxxxxx"
-			-- Permisos minimos del token: repo, issues, pull_requests
-			-- GitHub MCP: activo si GITHUB_TOKEN_NVIM esta en el entorno (Windows user env).
-			-- Setup: [System.Environment]::SetEnvironmentVariable("GITHUB_TOKEN_NVIM","ghp_...","User")
-			mcps = (vim.env.GITHUB_TOKEN_NVIM ~= nil and vim.env.GITHUB_TOKEN_NVIM ~= "") and {
-				{
-					name = "github",
-					command = "npx",
-					args = { "-y", "@modelcontextprotocol/server-github" },
-					env = { GITHUB_PERSONAL_ACCESS_TOKEN = vim.env.GITHUB_TOKEN_NVIM },
-				},
-			} or {},
 		},
 
 		config = function(_, opts)

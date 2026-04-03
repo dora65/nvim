@@ -2,68 +2,6 @@ return {
 	{ "folke/todo-comments.nvim", version = "*" },
 
 	{
-		"b0o/incline.nvim",
-		enabled = false, -- Deshabilitado: Lualine e iconos de cursor absorben el mode, WinBar el breadcrumb.
-		event = "BufReadPre",
-		priority = 1200,
-		config = function()
-			require("incline").setup({
-				window = {
-					margin = { vertical = 0, horizontal = 1 },
-					padding = { left = 1, right = 1 },
-					placement = { horizontal = "right", vertical = "top" },
-				},
-				hide = { cursorline = true },
-				render = function(props)
-					-- Colores: catppuccin palette (instalado siempre; compatible con sublime)
-					local cp = require("catppuccin.palettes").get_palette("mocha")
-					local accent     = cp.peach
-					local text_color = cp.text
-					-- Diagnóstico: lee del tema activo — funciona con Sublime, Catppuccin, cualquier otro
-					local function hl_fg(name)
-						local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
-						return hl.fg and string.format("#%06x", hl.fg) or nil
-					end
-					local err_color  = hl_fg("DiagnosticError") or "#f92672"
-					local warn_color = hl_fg("DiagnosticWarn")  or "#e6db74"
-					local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
-					if filename == "" then filename = "[No Name]" end
-					local modified = vim.bo[props.buf].modified
-					local icon, icon_color = require("nvim-web-devicons").get_icon_color(filename)
-					local res = {}
-
-					-- Diagnósticos: badges compactos solo cuando hay errores/warnings
-					local diags = vim.diagnostic.get(props.buf)
-					local errors, warns = 0, 0
-					for _, d in ipairs(diags) do
-						if d.severity == vim.diagnostic.severity.ERROR then errors = errors + 1
-						elseif d.severity == vim.diagnostic.severity.WARN then warns = warns + 1
-						end
-					end
-					if errors > 0 then table.insert(res, { " ■" .. errors, guifg = err_color }) end
-					if warns  > 0 then table.insert(res, { " ▲" .. warns,  guifg = warn_color }) end
-					if errors > 0 or warns > 0 then
-						table.insert(res, { "  ", guifg = text_color })
-					end
-
-					if icon then
-						table.insert(res, { icon .. " ", guifg = icon_color })
-					end
-					table.insert(res, {
-						filename,
-						gui   = modified and "bold,italic" or "bold",
-						guifg = modified and accent or text_color,
-					})
-					if modified then
-						table.insert(res, { " ●", guifg = accent })
-					end
-					return res
-				end,
-			})
-		end,
-	},
-
-	{
 		"folke/zen-mode.nvim",
 		cmd = "ZenMode",
 		opts = {

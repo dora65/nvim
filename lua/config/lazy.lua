@@ -132,7 +132,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.editor.mini-diff" },
 
     -- Formatting plugins - excellent Windows compatibility
-    { import = "lazyvim.plugins.extras.formatting.biome" },
+    { import = "lazyvim.plugins.extras.lang.typescript.biome" },
     { import = "lazyvim.plugins.extras.formatting.prettier" },
 
     -- Linting plugins
