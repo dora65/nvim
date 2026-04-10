@@ -38,10 +38,30 @@ return {
 			}
 			opts.options.section_separators   = { left = "", right = "" }
 			opts.options.component_separators = { left = "│", right = "│" }
-			return
 		end
 
-		-- catppuccin: integración nativa via LazyVim/lualine (no custom needed)
+		-- ── Componente: Claude Code agent/tool visibility ──────────────────────────
+		-- Lee ~/.nvim_claude_status escrito por el hook PreToolUse de Claude Code
+		-- Muestra "" idle / " [tool]" activo — color mauve (#cba6f7)
+		-- update_every = 1 (tick lualine ~1s) para reactividad sin polling agresivo
+		local status_file = vim.fn.expand("~/.nvim_claude_status")
+		local claude_component = {
+			function()
+				local f = io.open(status_file, "r")
+				if not f then return "" end
+				local tool = f:read("*l")
+				f:close()
+				if not tool or tool == "" then return "󰚩" end
+				return "󰚩 [" .. tool .. "]"
+			end,
+			color = { fg = "#cba6f7" },   -- mauve: distinguible del resto de statusline
+			update_in_insert = true,
+		}
+
+		-- Inyectar en sección x (derecha, antes de fileinfo)
+		opts.sections = opts.sections or {}
+		opts.sections.lualine_x = opts.sections.lualine_x or {}
+		table.insert(opts.sections.lualine_x, 1, claude_component)
 	end,
 
 	-- config: parchea on_click en secciones existentes (no reemplaza) luego llama setup

@@ -57,7 +57,7 @@ return {
   },
   opts = {
     close_if_last_window = true,
-    popup_border_style = "single",
+    popup_border_style = "rounded",
     enable_opened_markers = true,
     open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline", "toggleterm" },
     -- Refrescar git status cuando cambia (timing fix: árbol abre antes que git termine)
@@ -85,7 +85,7 @@ return {
     window = {
       width = 26,
       position = "left",
-      popup_border_style = "single",
+      popup_border_style = "rounded",
       mappings = {
         ["<space>"] = "none",
         ["h"] = function(state)

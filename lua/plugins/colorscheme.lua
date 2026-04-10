@@ -82,7 +82,7 @@
 						TelescopeBorder = { fg = colors.surface2, bg = colors.mantle },
 
 						-- ── Cursor line: sutil sobre transparencia ──────────────────────
-						CursorLine   = { bg = "#2d2e2a" },   -- warm Sublime +4% L*
+						CursorLine   = { bg = "#292a26" },   -- warm Sublime +3% L* — 1pt oscuro: fatiga reducida, warm preservado
 						CursorLineNr = { fg = colors.lavender, bold = true },
 						-- overlay0 (#6c7086) = 4.1:1 contraste vs crust: legible sin competir con código
 						-- surface1 (#45475a) = ~2.5:1 → insuficiente (principio fg_dim de Kanagawa)
@@ -90,7 +90,7 @@
 
 						-- ── Popups y menús: semi-transparente, elegante ─────────────────
 						Pmenu = { bg = colors.mantle, fg = colors.text },
-						PmenuSel = { bg = "#3a2d52", fg = colors.text, bold = true },  -- mauve-tinted (Kanagawa accent principle)
+						PmenuSel = { bg = "#1e3040", fg = colors.text, bold = true },  -- dark cyan blend: coherente con accent #66d9ef del tema Sublime
 						PmenuThumb = { bg = colors.surface1 },
 
 						-- ── Neo-tree: Principios Kanagawa (Luminance Hierarchy) ─────────────────
@@ -125,7 +125,7 @@
 						DropBarIconUISeparator    = { fg = colors.overlay0 },
 						DropBarMenuNormalFloat    = { bg = colors.mantle,   fg = colors.text },
 						DropBarMenuFloatBorder    = { fg = colors.surface2, bg = colors.mantle },
-						DropBarMenuHoverEntry     = { bg = "#3a2d52",       fg = colors.text, bold = true },
+						DropBarMenuHoverEntry     = { bg = "#1e3040",       fg = colors.text, bold = true },  -- dark cyan blend: match PmenuSel (sistema unificado)
 						DropBarMenuCurrentContext = { bg = colors.surface1, fg = colors.subtext0 },
 						DropBarKindFile      = { fg = colors.blue },
 						DropBarKindFolder    = { fg = colors.overlay0 },
@@ -144,7 +144,7 @@
 						-- BqfPreview: preview float del quickfix
 						BqfPreviewBorder  = { fg = colors.surface2 },
 						BqfPreviewTitle   = { fg = colors.mauve,  bold = true },
-						BqfPreviewRange   = { bg = "#3a2d52",     bold = true },
+						BqfPreviewRange   = { bg = "#1e3040",     bold = true },  -- dark cyan blend: match sistema PmenuSel
 						BqfPreviewBufLabel= { fg = colors.mauve,  italic = true },
 						BqfSign           = { fg = colors.mauve },
 
@@ -192,10 +192,10 @@
 						SnacksPickerTitle   = { fg = colors.mauve, bg = colors.mantle, bold = true },
 
 						-- ── Indent guides: muy discretos ────────────────────────────────
-						MiniIndentscopeSymbol    = { fg = "#2e2f2b" },
-						IndentBlanklineChar      = { fg = "#252622" },
-							IblIndent                = { fg = "#252622" },
-							IblScope                 = { fg = "#2e2f2b" },
+						MiniIndentscopeSymbol    = { fg = "#2b2c28" },  -- +warm oliva: afina coherencia termica sublime
+						IndentBlanklineChar      = { fg = "#252521" },  -- +warm: afina hacia oliva sublime
+							IblIndent                = { fg = "#252521" },  -- sync IndentBlanklineChar
+							IblScope                 = { fg = "#2b2c28" },  -- sync MiniIndentscopeSymbol
 
 						-- ── Visual selection: dark mauve blend — consistente con WezTerm selection_bg ──
 						-- #394361 = blend(blue #89b4fa, base #1e1e2e, 25%) — H=222° azul puro, no rosado, 6.4:1 WCAG AA
@@ -719,15 +719,6 @@
 				which_key = true,
 				lualine = true,
 			},
-		},
-	},
-
-	-- ─── nvim-web-devicons: colores Catppuccin oficiales ──────────────────────
-	{
-		"nvim-tree/nvim-web-devicons",
-		opts = {
-			color_icons = true,
-			default = true,
 		},
 	},
 

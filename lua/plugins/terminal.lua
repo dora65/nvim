@@ -35,7 +35,7 @@ return {
         height = function()
           return math.floor(vim.o.lines * 0.85)
         end,
-        winblend = 10,  -- Cristal ahumado: igual que todos los otros flotantes
+        winblend = 12,  -- glassmorphism unificado: sync con noice/snacks/ufo (12)
         highlights = {
           border = "FloatBorder",      -- Coordina con colorscheme.lua: surface2 sobre mantle
           background = "NormalFloat",  -- Coordina con colorscheme.lua: mantle #1a1a1c

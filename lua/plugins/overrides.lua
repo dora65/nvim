@@ -24,12 +24,12 @@ return {
           size = { width = "auto", height = "auto" },
           border = {
             style = "rounded",
-            padding = { 0, 1 },
+            padding = { 0, 0 },  -- densidad maxima: sin padding horizontal
           },
           -- Usar los highlights que inyectamos en colorscheme.lua
           win_options = {
             winhighlight = "Normal:NoiceCmdlinePopup,FloatBorder:NoiceCmdlinePopupBorder",
-            winblend = 10,
+            winblend = 12,  -- glassmorphism unificado: 12 = 5% opaco sobre 95% acrylic (todos los floats)
           },
         },
         mini = {
@@ -39,7 +39,7 @@ return {
           border = { style = "none" },
           win_options = {
             winhighlight = "Normal:NoiceMini",
-            winblend = 15,
+            winblend = 12,  -- sync: uniforme con resto de floats
           },
         },
       },
@@ -76,9 +76,9 @@ return {
     opts = {
       windows = {
         preview = true,      -- Vista previa del archivo al hacer hover (killer feature)
-        width_focus = 30,    -- Columna activa
-        width_nofocus = 15,  -- Columnas inactivas (breadcrumb)
-        width_preview = 60,  -- Panel de preview
+        width_focus = 28,    -- Columna activa: -2 chars sin perder rutas tipicas
+        width_nofocus = 13,  -- Breadcrumb inactivo: -2 chars (solo icono+nombre corto)
+        width_preview = 55,  -- Preview: -5 chars, aun amplio para visualizacion
       },
       options = {
         use_as_default_explorer = false, -- neo-tree sigue manejando el sidebar

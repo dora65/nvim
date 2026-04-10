@@ -84,7 +84,7 @@ return {
 					position = "float",
 					width = 0.9,
 					height = 0.92,
-					backdrop = 65,
+					backdrop = 92,
 					border = "rounded",
 					wo = {
 						-- winblend omitido: mini.animate lo gestiona (open: 80→0, close: 0→80)

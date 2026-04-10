@@ -12,7 +12,7 @@ return {
 			stop_eof = true,
 			respect_scrolloff = true,
 			cursor_scrolls_alone = true,
-			easing = "quadratic",
+			easing = "cubic",  -- cubic: arranque más instantáneo que sine — mejor para navegación con teclado
 			pre_hook = nil,
 			post_hook = nil,
 			performance_mode = false,
@@ -37,19 +37,31 @@ return {
 	{
 		"nvim-mini/mini.indentscope",
 		event = "BufReadPre",
-		opts = {
-			symbol = "│",
-			options = { try_as_border = true },
-			draw = {
-				delay = 50,
-				animation = function()
-					return 5
-				end,
-			},
-		},
+		-- CRITICO: opts debe ser function() para evitar "module not found" al parsear el spec.
+		-- require("mini.indentscope") dentro de opts={} (table literal) se evalúa eagerly ANTES
+		-- que Lazy.nvim cargue el plugin. opts=function() lo difiere hasta después del load.
+		opts = function()
+			return {
+				symbol = "│",
+				options = { try_as_border = true },
+				draw = {
+					delay = 50,
+					-- quadratic out: arranque instantáneo + deceleración natural — mejor que exponential in-out
+					-- para "ink drop": la línea aparece rápido y se asienta suavemente (no hay lag inicial)
+					animation = require("mini.indentscope").gen_animation.quadratic({ easing = "out", duration = 3, unit = "step" }),
+				},
+			}
+		end,
 		init = function()
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "markdown", "text", "help", "neo-tree", "Trouble", "lazy", "mason", "toggleterm", "terminal" },
+				-- Ampliado: agregar UIs de snacks y fzf-lua para evitar indentscope en floats de UI
+				pattern = {
+					"markdown", "text", "help",
+					"neo-tree", "Trouble", "lazy", "mason",
+					"toggleterm", "terminal",
+					"snacks_notifier", "snacks_dashboard",
+					"fzf", "blink-cmp",
+				},
 				callback = function()
 					vim.b.miniindentscope_disable = true
 				end,
@@ -70,20 +82,21 @@ return {
 			-- Sweet spot fluido y elegante: baja stiffness = cola larga, natural (ink drop)
 			-- FLUIDEZ: stiffness alto = cola corta/responsiva. trailing bajo = cola elegante.
 			-- damping alto = sin oscilación al parar. distance alto = parada limpia (sin micro-flicker).
-			stiffness = 0.60,                    -- Mercurio líquido: alta presteza de arranque (instantáneo)
-			trailing_stiffness = 0.30,           -- Cola controlada
+			-- 0.55/0.25: cola más larga tipo "mercurio" — arranque igualmente ágil, trailing más fluido
+			stiffness = 0.55,                    -- Ligeramente menos rígido = cola más visible en saltos largos
+			trailing_stiffness = 0.25,           -- Cola más elegante (0.30 era un poco corta para WezTerm 240fps)
 			stiffness_insert_mode = 0.65,
 			trailing_stiffness_insert_mode = 0.35,
 			damping = 0.85,                      -- Fuerte amortiguación = movimiento robusto sin rebote/flicker
 			damping_insert_mode = 0.88,
-			distance_stop_animating = 1.5,
+			distance_stop_animating = 0.5,  -- 0.5 celdas: sweet spot (evita micro-flicker en mov 1 celda)
 			hide_target_hack = false,
 			smear_between_neighbor_lines = true,
 			legacy_computing_symbols_support = false,
 			-- 4ms = 250fps: Render ultra fluido, respaldado por WezTerm WebGPU 240fps
 			time_interval = 4,
 			cursor_color = "#66d9ef",  -- sync con Cursor hl sublime: cyan monokai ST3
-			transparent_bg_fallback_color = "#11111b", -- Evita la sombra gris sobre el fondo
+			transparent_bg_fallback_color = "#1e1f1c", -- bg real Monokai flat: CRITICO para no artifacts
 		},
 		config = function(_, opts)
 			local smear = require("smear_cursor")
@@ -133,8 +146,10 @@ return {
 
 			-- Filtro: excluir filetypes que causan artefactos en open/close
 			local skip_ft = {
-				["neo-tree"] = true, ["toggleterm"] = true, ["nofile"] = true,
+				["neo-tree"] = true, ["toggleterm"] = true,
 				["NvimTree"] = true, ["dashboard"] = true, ["alpha"] = true,
+				-- snacks filetypes: notifier y input son floats de muy corta vida, animar los causa flicker
+				["snacks_notifier"] = true, ["snacks_input"] = true,
 			}
 			local function float_winconfig(win_id)
 				local ok, buf = pcall(vim.api.nvim_win_get_buf, win_id)
@@ -142,10 +157,10 @@ return {
 				local ft = vim.bo[buf].filetype
 				local bt = vim.bo[buf].buftype
 				-- Solo floats, excluir neo-tree y splits normales
-				if skip_ft[ft] or bt == "terminal" then return nil end
+				if skip_ft[ft] or bt == "terminal" or bt == "nofile" or bt == "prompt" then return nil end
 				local cfg = vim.api.nvim_win_get_config(win_id)
 				if not cfg.relative or cfg.relative == "" then return nil end  -- solo floats
-				return animate.gen_winconfig.slide({ direction = "from_edge" })(win_id)
+				return animate.gen_winconfig.slide({ direction = "from_center" })(win_id)  -- from_center: floats emergen/colapsan al centro (modal premium, from_edge es para paneles laterales)
 			end
 
 			return {
